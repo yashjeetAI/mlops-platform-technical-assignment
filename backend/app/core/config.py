@@ -9,9 +9,17 @@ class Settings(BaseSettings):
 
     app_name: str = "MLOps Platform"
     environment: str = "local"
-    # Default to SQLite for zero-config local runs; override with Postgres in Docker.
-    database_url: str = "sqlite:///./mlops.db"
+    # Postgres is the single source of truth for the app (matches Docker Compose).
+    # Tests override this with in-memory SQLite via dependency injection.
+    database_url: str = "postgresql+psycopg://mlops:mlops@localhost:5432/mlops"
     log_level: str = "INFO"
+
+    # Auth / JWT. Override jwt_secret via env in any real deployment.
+    jwt_secret: str = "dev-insecure-change-me-please-32byte-minimum-secret"
+    jwt_algorithm: str = "HS256"
+    jwt_expiry_minutes: int = 480
+    # Password for all seeded demo users (demo convenience only).
+    demo_password: str = "demo1234"
 
 
 @lru_cache
