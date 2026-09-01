@@ -138,7 +138,7 @@
 @media (max-width: 480px) {
   .login-page {
     padding: 1rem;
-    align-items: flex-start; // avoid clipping when the mobile keyboard opens
+    // stays vertically centered (inherits align-items: center from the base rule)
   }
 
   .login-card {

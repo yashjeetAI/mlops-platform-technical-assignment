@@ -80,6 +80,12 @@ theme (`styles.scss` pins Material's `--mat-sys-primary` to `#FF000F`).
 - **API access is same-origin `/api`** in both dev and prod — the dev proxy
   (`proxy.conf.json`) and prod nginx (`frontend/nginx.conf`) both forward `/api` → backend, so
   there is no CORS layer. Use `/api/...`, never an absolute backend URL.
+- **Responsive layout is desktop-first**: base styles target desktop; adjust for small
+  screens with `max-width` media queries (breakpoints ~600px for layout, ~480px for the login
+  card). Keep new views mobile-friendly (fluid grids, no fixed widths that overflow phones).
+- **Favicon** is an ABB wordmark in three formats under `public/` (`.svg` for modern browsers,
+  `.png` + multi-size `.ico` for Safari/fallback). Rebuild the frontend container to see asset
+  changes; favicons cache hard (hard-refresh or use a private window).
 
 ## Workflow conventions
 - **Never commit to `main`** (a hook blocks it). Branch as `feat/*` or `fix/*`, push, open a PR.
