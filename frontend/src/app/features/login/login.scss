@@ -11,6 +11,11 @@
 
 .login-card {
   position: relative;
+  // `margin: auto` centers within the flex container but, unlike
+  // `align-items: center`, still allows the page to scroll when the card is
+  // taller than the viewport (e.g. when the mobile keyboard is open) — so no
+  // part of the form can be permanently hidden behind the keyboard.
+  margin: auto;
   width: 100%;
   max-width: 420px;
   padding: 2rem 2rem 1.5rem;
@@ -133,4 +138,20 @@
   border-color: var(--abb-red);
   color: var(--abb-red);
   background: rgba(255, 0, 15, 0.04);
+}
+
+@media (max-width: 480px) {
+  .login-page {
+    padding: 1rem;
+    // stays vertically centered (inherits align-items: center from the base rule)
+  }
+
+  .login-card {
+    padding: 1.5rem 1.25rem 1.25rem;
+    border-radius: 10px;
+  }
+
+  .brand-mark {
+    font-size: 1.75rem;
+  }
 }
