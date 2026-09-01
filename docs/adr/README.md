@@ -12,3 +12,4 @@ Alternatives Considered, Consequences, Follow-up Actions.
 | [0001](0001-persistence-access-pattern.md) | Persistence access pattern | Accepted |
 | [0002](0002-authentication-and-rbac.md) | Authentication and role-based authorization | Accepted |
 | [0003](0003-identifier-strategy.md) | Identifier strategy (UUID primary keys) | Accepted |
+| [0004](0004-api-naming-convention.md) | API naming convention (camelCase JSON boundary) | Accepted |

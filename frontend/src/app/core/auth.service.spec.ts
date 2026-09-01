@@ -13,9 +13,9 @@ const USER: User = {
   id: '00000000-0000-7000-8000-000000000000',
   username: 'engineer',
   email: 'engineer@example.com',
-  full_name: 'Eli Engineer',
+  fullName: 'Eli Engineer',
   role: Role.ENGINEER,
-  created_at: '2026-01-01T00:00:00Z',
+  createdAt: '2026-01-01T00:00:00Z',
 };
 
 describe('AuthService', () => {
@@ -38,7 +38,7 @@ describe('AuthService', () => {
 
     const loginReq = http.expectOne('/api/auth/login');
     expect(loginReq.request.method).toBe('POST');
-    loginReq.flush({ access_token: 'jwt-token', token_type: 'bearer' });
+    loginReq.flush({ accessToken: 'jwt-token', tokenType: 'bearer' });
 
     const meReq = http.expectOne('/api/auth/me');
     meReq.flush(USER);

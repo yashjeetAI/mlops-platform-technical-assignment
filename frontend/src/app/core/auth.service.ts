@@ -25,7 +25,7 @@ export class AuthService {
   /** Exchange credentials for a token, then load the user profile. */
   login(credentials: LoginRequest): Observable<User> {
     return this.http.post<TokenResponse>(`${API_BASE_URL}/auth/login`, credentials).pipe(
-      tap((res) => localStorage.setItem(TOKEN_KEY, res.access_token)),
+      tap((res) => localStorage.setItem(TOKEN_KEY, res.accessToken)),
       switchMap(() => this.fetchMe()),
     );
   }
