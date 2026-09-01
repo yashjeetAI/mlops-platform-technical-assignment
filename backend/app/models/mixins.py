@@ -11,15 +11,17 @@ def utcnow() -> datetime:
 
 
 class UUIDPrimaryKeyMixin:
-    """UUID (v4) primary key.
+    """Time-ordered UUID (v7) primary key.
 
     Uses SQLAlchemy's dialect-aware `Uuid` type: native `uuid` on PostgreSQL,
     CHAR(32) on SQLite. Generated app-side so IDs need no central sequence.
-    Roadmap: switch to time-ordered UUIDv7 for better index locality.
+    UUIDv7 embeds a timestamp prefix, so keys are roughly monotonic — this
+    restores B-tree index locality that random UUIDv4 loses on high-volume inserts.
+    Requires Python 3.14+ (stdlib `uuid.uuid7`).
     """
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
+        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid7
     )
 
 
