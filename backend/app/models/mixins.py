@@ -20,20 +20,24 @@ class UUIDPrimaryKeyMixin:
     Requires Python 3.14+ (stdlib `uuid.uuid7`).
     """
 
+    # sort_order=-100 keeps the PK as the first column, ahead of a model's own
+    # columns (default sort_order=0), despite being inherited from a mixin.
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid7
+        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid7, sort_order=-100
     )
 
 
 class TimestampMixin:
     """Adds created_at / updated_at audit timestamps."""
 
+    # sort_order=100/101 keeps audit timestamps as the last columns.
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
+        DateTime(timezone=True), server_default=func.now(), nullable=False, sort_order=100
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
         nullable=False,
+        sort_order=101,
     )
