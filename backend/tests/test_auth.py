@@ -12,8 +12,8 @@ def test_login_success_returns_token(client):
     resp = client.post("/auth/login", json={"username": "admin", "password": "demo1234"})
     assert resp.status_code == 200
     body = resp.json()
-    assert body["token_type"] == "bearer"
-    assert body["access_token"]
+    assert body["tokenType"] == "bearer"
+    assert body["accessToken"]
 
 
 def test_login_wrong_password_401(client):
@@ -37,6 +37,9 @@ def test_me_returns_current_user(client):
     assert body["username"] == "engineer"
     assert body["role"] == "ENGINEER"
     assert "hashed_password" not in body
+    # camelCase API contract
+    assert "fullName" in body and "createdAt" in body
+    assert "full_name" not in body
 
 
 def test_me_rejects_garbage_token(client):

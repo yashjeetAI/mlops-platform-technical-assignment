@@ -10,9 +10,9 @@ export interface User {
   id: string;
   username: string;
   email: string;
-  full_name: string;
+  fullName: string;
   role: Role;
-  created_at: string;
+  createdAt: string;
 }
 
 export interface LoginRequest {
@@ -21,6 +21,6 @@ export interface LoginRequest {
 }
 
 export interface TokenResponse {
-  access_token: string;
-  token_type: string;
+  accessToken: string;
+  tokenType: string;
 }

@@ -52,4 +52,4 @@ def client(db_session):
 def auth_header(client: TestClient, username: str, password: str = "demo1234") -> dict:
     resp = client.post("/auth/login", json={"username": username, "password": password})
     assert resp.status_code == 200, resp.text
-    return {"Authorization": f"Bearer {resp.json()['access_token']}"}
+    return {"Authorization": f"Bearer {resp.json()['accessToken']}"}
