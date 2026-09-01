@@ -1,0 +1,109 @@
+.home {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.home-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--abb-black);
+}
+
+.home-header p {
+  margin: 0;
+  color: var(--abb-gray-700);
+}
+
+.role-chip {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(255, 0, 15, 0.1);
+  color: var(--abb-red);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+}
+
+.cap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin: 1.75rem 0 1rem;
+}
+
+.cap-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 1.1rem;
+  border-radius: 10px;
+}
+
+.cap-disabled {
+  opacity: 0.55;
+}
+
+.cap-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: rgba(255, 0, 15, 0.08);
+  color: var(--abb-red);
+  flex-shrink: 0;
+}
+
+.cap-body {
+  flex: 1;
+}
+
+.cap-body h3 {
+  margin: 0 0 0.2rem;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--abb-black);
+}
+
+.cap-body p {
+  margin: 0;
+  font-size: 0.83rem;
+  color: var(--abb-gray-700);
+}
+
+.cap-status {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge mat-icon {
+  font-size: 1rem;
+  height: 1rem;
+  width: 1rem;
+}
+
+.badge-ok {
+  color: #1b7f3b;
+}
+
+.badge-no {
+  color: var(--abb-gray-500);
+}
+
+.home-note {
+  color: var(--abb-gray-500);
+  font-size: 0.85rem;
+}

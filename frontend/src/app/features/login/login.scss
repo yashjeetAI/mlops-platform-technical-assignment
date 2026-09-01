@@ -1,0 +1,136 @@
+.login-page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(1200px 600px at 100% -10%, rgba(255, 0, 15, 0.06), transparent 60%),
+    var(--abb-gray-100);
+}
+
+.login-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem 2rem 1.5rem;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.login-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-mark {
+  font-weight: 800;
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+  color: var(--abb-red);
+  line-height: 1;
+}
+
+.brand-divider {
+  width: 1px;
+  height: 1.75rem;
+  background: var(--abb-gray-300);
+}
+
+.brand-app {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--abb-black);
+}
+
+.brand-sub {
+  margin: 0.5rem 0 1.5rem;
+  color: var(--abb-gray-700);
+  font-size: 0.9rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form mat-form-field {
+  width: 100%;
+}
+
+.login-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 0, 15, 0.08);
+  color: var(--abb-red);
+  font-size: 0.875rem;
+}
+
+.login-error mat-icon {
+  font-size: 1.1rem;
+  height: 1.1rem;
+  width: 1.1rem;
+}
+
+.login-submit {
+  height: 44px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.demo {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--abb-gray-300);
+}
+
+.demo-label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--abb-gray-700);
+  margin-bottom: 0.6rem;
+}
+
+.demo-label code {
+  background: var(--abb-gray-100);
+  padding: 0 0.25rem;
+  border-radius: 4px;
+}
+
+.demo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.demo-chip {
+  border: 1px solid var(--abb-gray-300);
+  background: #fff;
+  color: var(--abb-black);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.demo-chip:hover {
+  border-color: var(--abb-red);
+  color: var(--abb-red);
+  background: rgba(255, 0, 15, 0.04);
+}

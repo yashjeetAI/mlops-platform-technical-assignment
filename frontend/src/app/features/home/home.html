@@ -1,0 +1,39 @@
+<div class="home">
+  <header class="home-header">
+    <h1>Welcome, {{ user()?.full_name }}</h1>
+    <p>
+      Signed in as <strong>{{ user()?.username }}</strong>
+      <span class="role-chip">{{ user()?.role }}</span>
+    </p>
+  </header>
+
+  <section class="cap-grid">
+    @for (cap of capabilities(); track cap.title) {
+      <mat-card
+        class="cap-card"
+        [class.cap-disabled]="!cap.allowed"
+        appearance="outlined"
+      >
+        <div class="cap-icon">
+          <mat-icon>{{ cap.icon }}</mat-icon>
+        </div>
+        <div class="cap-body">
+          <h3>{{ cap.title }}</h3>
+          <p>{{ cap.description }}</p>
+        </div>
+        <div class="cap-status">
+          @if (cap.allowed) {
+            <span class="badge badge-ok"><mat-icon>check_circle</mat-icon> Allowed</span>
+          } @else {
+            <span class="badge badge-no"><mat-icon>block</mat-icon> No access</span>
+          }
+        </div>
+      </mat-card>
+    }
+  </section>
+
+  <p class="home-note">
+    Access reflects your role's permissions. Registry, deployment and monitoring
+    views are coming next.
+  </p>
+</div>

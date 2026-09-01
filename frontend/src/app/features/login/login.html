@@ -1,0 +1,76 @@
+<div class="login-page">
+  <mat-card class="login-card" appearance="outlined">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" class="login-progress" />
+    }
+
+    <div class="brand">
+      <span class="brand-mark">ABB</span>
+      <span class="brand-divider"></span>
+      <span class="brand-app">MLOps Platform</span>
+    </div>
+    <p class="brand-sub">Sign in to manage models, deployments and monitoring.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" autocomplete="username" />
+        <mat-icon matPrefix>person</mat-icon>
+        @if (form.controls.username.hasError('required') && form.controls.username.touched) {
+          <mat-error>Username is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          formControlName="password"
+          autocomplete="current-password"
+          [type]="hidePassword() ? 'password' : 'text'"
+        />
+        <mat-icon matPrefix>lock</mat-icon>
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="hidePassword.set(!hidePassword())"
+          [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'"
+        >
+          <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+          <mat-error>Password is required</mat-error>
+        }
+      </mat-form-field>
+
+      @if (error()) {
+        <div class="login-error" role="alert">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        class="login-submit"
+        [disabled]="loading()"
+      >
+        {{ loading() ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </form>
+
+    <div class="demo">
+      <span class="demo-label">Demo accounts — click to fill (password <code>demo1234</code>)</span>
+      <div class="demo-chips">
+        @for (u of demoUsers; track u.username) {
+          <button type="button" class="demo-chip" (click)="fillDemo(u.username)">
+            {{ u.role }}
+          </button>
+        }
+      </div>
+    </div>
+  </mat-card>
+</div>

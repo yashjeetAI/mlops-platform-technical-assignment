@@ -1,1 +1,45 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+// ABB brand palette (CommonUX): signature red + neutrals.
+:root {
+  --abb-red: #ff000f;
+  --abb-red-hover: #cc000c;
+  --abb-black: #1f1f1f;
+  --abb-gray-100: #f5f5f5;
+  --abb-gray-300: #dbdbdb;
+  --abb-gray-500: #9f9f9f;
+  --abb-gray-700: #696969;
+}
+
+html {
+  color-scheme: light;
+
+  // Angular Material 3 theme, red-based to align with the brand.
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$red-palette,
+        tertiary: mat.$red-palette,
+      ),
+      density: 0,
+    )
+  );
+
+  // Pin Material's primary system colors to the exact ABB red so buttons,
+  // form-field focus and other accents match the brand precisely.
+  --mat-sys-primary: #ff000f;
+  --mat-sys-on-primary: #ffffff;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', 'Segoe UI', Helvetica, Arial, sans-serif;
+  color: var(--abb-black);
+  background: var(--abb-gray-100);
+}
