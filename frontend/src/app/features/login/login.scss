@@ -134,3 +134,19 @@
   color: var(--abb-red);
   background: rgba(255, 0, 15, 0.04);
 }
+
+@media (max-width: 480px) {
+  .login-page {
+    padding: 1rem;
+    align-items: flex-start; // avoid clipping when the mobile keyboard opens
+  }
+
+  .login-card {
+    padding: 1.5rem 1.25rem 1.25rem;
+    border-radius: 10px;
+  }
+
+  .brand-mark {
+    font-size: 1.75rem;
+  }
+}

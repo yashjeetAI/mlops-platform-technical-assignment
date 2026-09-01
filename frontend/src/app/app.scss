@@ -56,3 +56,18 @@
 .app-content {
   display: block;
 }
+
+// Mobile: keep only the brand mark + user menu; clamp the username.
+@media (max-width: 600px) {
+  .app-bar-title,
+  .app-bar-role {
+    display: none;
+  }
+
+  .app-bar-username {
+    max-width: 7.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

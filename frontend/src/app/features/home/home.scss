@@ -107,3 +107,18 @@
   color: var(--abb-gray-500);
   font-size: 0.85rem;
 }
+
+@media (max-width: 600px) {
+  .home {
+    padding: 1.25rem 1rem;
+  }
+
+  .home-header h1 {
+    font-size: 1.35rem;
+  }
+
+  .cap-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
