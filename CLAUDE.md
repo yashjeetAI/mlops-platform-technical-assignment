@@ -18,6 +18,8 @@ Run backend commands from `backend/` with the venv active (`source .venv/bin/act
 cd backend
 python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
 uvicorn app.main:app --reload            # dev server on :8000 (/docs for OpenAPI)
+ruff check .                              # lint (config in pyproject.toml)
+ruff check . --fix                        # auto-fix safe lint issues
 pytest                                    # all tests
 pytest tests/test_auth.py                 # single file
 pytest tests/test_auth.py::test_login_wrong_password_401   # single test
@@ -30,6 +32,7 @@ cd frontend
 npm install
 npm start                                 # dev server on :4200 (proxies /api -> :8000)
 npm run build
+npm run format:check                       # prettier check (npm run format to write)
 CI=true npx ng test --watch=false         # Vitest unit tests, run once
 
 # Full stack
@@ -101,6 +104,9 @@ theme (`styles.scss` pins Material's `--mat-sys-primary` to `#FF000F`).
   changes; favicons cache hard (hard-refresh or use a private window).
 
 ## Workflow conventions
+- **CI** (`.github/workflows/ci.yml`) runs on every PR and push to `main`: a **backend** job
+  (ruff lint + pytest against a Postgres service) and a **frontend** job (prettier check + build
+  + vitest). Keep both green — run `ruff check .` and `npm run format:check` locally before pushing.
 - **Never commit to `main`** (a hook blocks it). Branch as `feat/*` or `fix/*`, push, open a PR.
 - **Record significant decisions as ADRs** in `docs/adr/` (numbered, immutable once accepted;
   supersede rather than edit). Keep them lean (~30–40 lines): Context + 2–3 real alternatives

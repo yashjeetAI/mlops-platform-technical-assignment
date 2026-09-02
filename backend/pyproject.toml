@@ -11,3 +11,15 @@ addopts = "-q"
 [tool.ruff]
 line-length = 100
 target-version = "py314"
+# Alembic migrations are generated and versioned as-is; don't lint/reformat them.
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+# B008: FastAPI relies on `Depends(...)`/`Query(...)` as call-in-default-argument
+# by design, so this check is a false positive for our route signatures.
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests favour readable inline request fixtures over strict line width.
+"tests/**" = ["E501"]

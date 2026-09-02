@@ -15,7 +15,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.core.enums import DeploymentStatus, Environment, LifecycleStage as S
+from app.core.enums import DeploymentStatus, Environment
+from app.core.enums import LifecycleStage as S
 from app.core.logging import get_logger
 from app.models.deployment import Deployment, DeploymentEvent
 from app.models.metric import Metric
@@ -94,8 +95,14 @@ def _make_deployment(db, model, version, environment, status, error=None, actor_
         for st, name in _SUCCESS_STEPS:
             db.add(DeploymentEvent(deployment_id=dep.id, status=st, event=name, actor="worker"))
     else:  # failed
-        db.add(DeploymentEvent(deployment_id=dep.id, status=DeploymentStatus.REQUESTED, event="requested", actor="worker"))
-        db.add(DeploymentEvent(deployment_id=dep.id, status=status, event=error or "failed", actor="worker"))
+        db.add(DeploymentEvent(
+            deployment_id=dep.id, status=DeploymentStatus.REQUESTED,
+            event="requested", actor="worker",
+        ))
+        db.add(DeploymentEvent(
+            deployment_id=dep.id, status=status,
+            event=error or "failed", actor="worker",
+        ))
     return dep
 
 

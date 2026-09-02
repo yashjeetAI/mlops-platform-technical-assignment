@@ -76,7 +76,9 @@
             <mat-label>Version · environment</mat-label>
             <mat-select [value]="currentKey()" (selectionChange)="changeCombo($event.value)">
               @for (ref of s.available; track refKey(ref)) {
-                <mat-option [value]="refKey(ref)">v{{ ref.version }} · {{ ref.environment }}</mat-option>
+                <mat-option [value]="refKey(ref)"
+                  >v{{ ref.version }} · {{ ref.environment }}</mat-option
+                >
               }
             </mat-select>
           </mat-form-field>
@@ -93,9 +95,16 @@
           @for (c of metricCards(); track c.label) {
             <mat-card class="metric-card" appearance="outlined">
               <div class="metric-label">{{ c.label }}</div>
-              <div class="metric-value">{{ c.value }}<span class="metric-unit">{{ c.unit }}</span></div>
+              <div class="metric-value">
+                {{ c.value }}<span class="metric-unit">{{ c.unit }}</span>
+              </div>
               <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none">
-                <polyline [attr.points]="sparkline(c.spark)" fill="none" stroke="var(--abb-red)" stroke-width="1.5" />
+                <polyline
+                  [attr.points]="sparkline(c.spark)"
+                  fill="none"
+                  stroke="var(--abb-red)"
+                  stroke-width="1.5"
+                />
               </svg>
             </mat-card>
           }

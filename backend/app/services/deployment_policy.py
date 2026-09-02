@@ -3,7 +3,8 @@
 Stage-gated (strict): a version must be promoted to a stage before it can deploy to
 the matching environment. DRAFT and ARCHIVED are never deployable.
 """
-from app.core.enums import Environment, LifecycleStage as S
+from app.core.enums import Environment
+from app.core.enums import LifecycleStage as S
 
 DEPLOYABLE_STAGES: dict[Environment, set[S]] = {
     Environment.DEVELOPMENT: {S.VALIDATED, S.APPROVED, S.STAGING, S.PRODUCTION},

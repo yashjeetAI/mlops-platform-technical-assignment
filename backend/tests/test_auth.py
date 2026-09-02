@@ -1,6 +1,6 @@
 """Tests for authentication and role-based authorization."""
 import pytest
-from fastapi import Depends, status
+from fastapi import Depends
 
 from app.api.deps import require_roles
 from app.core.enums import Role

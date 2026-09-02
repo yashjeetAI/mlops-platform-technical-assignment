@@ -14,7 +14,11 @@
   <mat-form-field appearance="outline" class="search">
     <mat-icon matPrefix>search</mat-icon>
     <mat-label>Search models</mat-label>
-    <input matInput (input)="onSearch($any($event.target).value)" placeholder="name, key, owner, framework" />
+    <input
+      matInput
+      (input)="onSearch($any($event.target).value)"
+      placeholder="name, key, owner, framework"
+    />
   </mat-form-field>
 
   @if (loading()) {
@@ -42,12 +46,16 @@
             <code class="model-key">{{ m.key }}</code>
           </div>
           <dl class="model-meta">
-            <div><dt>Owner</dt><dd>{{ m.owner }}</dd></div>
-            <div><dt>Framework</dt><dd>{{ m.framework }}</dd></div>
+            <div>
+              <dt>Owner</dt>
+              <dd>{{ m.owner }}</dd>
+            </div>
+            <div>
+              <dt>Framework</dt>
+              <dd>{{ m.framework }}</dd>
+            </div>
           </dl>
-          <div class="model-cta">
-            View versions <mat-icon>arrow_forward</mat-icon>
-          </div>
+          <div class="model-cta">View versions <mat-icon>arrow_forward</mat-icon></div>
         </mat-card>
       }
     </div>
@@ -60,7 +68,9 @@
         </ng-container>
         <ng-container matColumnDef="key">
           <th mat-header-cell *matHeaderCellDef>Slug</th>
-          <td mat-cell *matCellDef="let m"><code class="model-key">{{ m.key }}</code></td>
+          <td mat-cell *matCellDef="let m">
+            <code class="model-key">{{ m.key }}</code>
+          </td>
         </ng-container>
         <ng-container matColumnDef="owner">
           <th mat-header-cell *matHeaderCellDef>Owner</th>
@@ -78,7 +88,12 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="columns"></tr>
-        <tr mat-row *matRowDef="let row; columns: columns" class="model-row" (click)="open(row)"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: columns"
+          class="model-row"
+          (click)="open(row)"
+        ></tr>
       </table>
     </div>
   }

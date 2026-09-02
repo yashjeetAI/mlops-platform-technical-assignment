@@ -20,9 +20,7 @@ export class RegistryService {
   private readonly base = `${API_BASE_URL}/models`;
 
   listModels(opts: { limit: number; offset: number; q?: string }): Observable<ModelPage> {
-    let params = new HttpParams()
-      .set('limit', opts.limit)
-      .set('offset', opts.offset);
+    let params = new HttpParams().set('limit', opts.limit).set('offset', opts.offset);
     if (opts.q) {
       params = params.set('q', opts.q);
     }
@@ -73,10 +71,9 @@ export class RegistryService {
     versionId: string,
     targetStage: LifecycleStage,
   ): Observable<ModelVersion> {
-    return this.http.post<ModelVersion>(
-      `${this.base}/${modelId}/versions/${versionId}/promote`,
-      { targetStage },
-    );
+    return this.http.post<ModelVersion>(`${this.base}/${modelId}/versions/${versionId}/promote`, {
+      targetStage,
+    });
   }
 }
 

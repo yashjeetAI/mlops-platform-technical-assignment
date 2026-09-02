@@ -12,9 +12,7 @@ export const authGuard: CanActivateFn = () => {
   if (auth.isAuthenticated()) {
     return of(true);
   }
-  return auth.restoreSession().pipe(
-    map((ok) => (ok ? true : router.parseUrl('/login'))),
-  );
+  return auth.restoreSession().pipe(map((ok) => (ok ? true : router.parseUrl('/login'))));
 };
 
 /** Redirects already-authenticated users away from the login page. */
@@ -25,7 +23,5 @@ export const guestGuard: CanActivateFn = () => {
   if (auth.isAuthenticated()) {
     return of(router.parseUrl('/'));
   }
-  return auth.restoreSession().pipe(
-    map((ok) => (ok ? router.parseUrl('/') : true)),
-  );
+  return auth.restoreSession().pipe(map((ok) => (ok ? router.parseUrl('/') : true)));
 };

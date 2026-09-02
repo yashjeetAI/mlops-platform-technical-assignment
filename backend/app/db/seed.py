@@ -11,10 +11,14 @@ settings = get_settings()
 
 # One demo user per role. Password is the same for all (settings.demo_password).
 DEMO_USERS = [
-    {"username": "admin", "full_name": "Ada Admin", "email": "admin@example.com", "role": Role.ADMIN},
-    {"username": "approver", "full_name": "Priya Approver", "email": "approver@example.com", "role": Role.APPROVER},
-    {"username": "engineer", "full_name": "Eli Engineer", "email": "engineer@example.com", "role": Role.ENGINEER},
-    {"username": "viewer", "full_name": "Vic Viewer", "email": "viewer@example.com", "role": Role.VIEWER},
+    {"username": "admin", "full_name": "Ada Admin",
+     "email": "admin@example.com", "role": Role.ADMIN},
+    {"username": "approver", "full_name": "Priya Approver",
+     "email": "approver@example.com", "role": Role.APPROVER},
+    {"username": "engineer", "full_name": "Eli Engineer",
+     "email": "engineer@example.com", "role": Role.ENGINEER},
+    {"username": "viewer", "full_name": "Vic Viewer",
+     "email": "viewer@example.com", "role": Role.VIEWER},
 ]
 
 

@@ -67,12 +67,42 @@ export class MonitoringDashboard {
     const p = s.latest;
     const series = s.series;
     return [
-      { label: 'Latency', value: p.latencyMs.toFixed(1), unit: 'ms', spark: series.map((x) => x.latencyMs) },
-      { label: 'Throughput', value: p.throughputRpm.toFixed(0), unit: 'rpm', spark: series.map((x) => x.throughputRpm) },
-      { label: 'Error rate', value: (p.errorRate * 100).toFixed(2), unit: '%', spark: series.map((x) => x.errorRate) },
-      { label: 'Quality', value: p.qualityScore.toFixed(3), unit: '', spark: series.map((x) => x.qualityScore) },
-      { label: 'Drift', value: p.driftScore.toFixed(3), unit: '', spark: series.map((x) => x.driftScore) },
-      { label: 'Availability', value: p.availability.toFixed(2), unit: '%', spark: series.map((x) => x.availability) },
+      {
+        label: 'Latency',
+        value: p.latencyMs.toFixed(1),
+        unit: 'ms',
+        spark: series.map((x) => x.latencyMs),
+      },
+      {
+        label: 'Throughput',
+        value: p.throughputRpm.toFixed(0),
+        unit: 'rpm',
+        spark: series.map((x) => x.throughputRpm),
+      },
+      {
+        label: 'Error rate',
+        value: (p.errorRate * 100).toFixed(2),
+        unit: '%',
+        spark: series.map((x) => x.errorRate),
+      },
+      {
+        label: 'Quality',
+        value: p.qualityScore.toFixed(3),
+        unit: '',
+        spark: series.map((x) => x.qualityScore),
+      },
+      {
+        label: 'Drift',
+        value: p.driftScore.toFixed(3),
+        unit: '',
+        spark: series.map((x) => x.driftScore),
+      },
+      {
+        label: 'Availability',
+        value: p.availability.toFixed(2),
+        unit: '%',
+        spark: series.map((x) => x.availability),
+      },
     ];
   });
 

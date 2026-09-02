@@ -1,13 +1,13 @@
 """Reusable ORM column mixins."""
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import DateTime, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 
 def utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class UUIDPrimaryKeyMixin:

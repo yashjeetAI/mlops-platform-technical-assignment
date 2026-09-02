@@ -1,6 +1,7 @@
 """Model registry ORM: Model and ModelVersion."""
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     JSON,
@@ -17,6 +18,9 @@ from app.core.enums import LifecycleStage
 from app.db.session import Base
 from app.models.mixins import TimestampMixin, UUIDPrimaryKeyMixin
 
+if TYPE_CHECKING:
+    from app.models.user import User
+
 
 class Model(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "models"
@@ -32,7 +36,7 @@ class Model(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         Uuid(as_uuid=True), ForeignKey("users.id"), nullable=True
     )
 
-    versions: Mapped[list["ModelVersion"]] = relationship(
+    versions: Mapped[list[ModelVersion]] = relationship(
         back_populates="model",
         cascade="all, delete-orphan",
         # Newest first (UUIDv7 id is time-ordered).
@@ -71,8 +75,8 @@ class ModelVersion(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         Uuid(as_uuid=True), ForeignKey("users.id"), nullable=True
     )
 
-    model: Mapped["Model"] = relationship(back_populates="versions")
-    events: Mapped[list["ModelVersionEvent"]] = relationship(
+    model: Mapped[Model] = relationship(back_populates="versions")
+    events: Mapped[list[ModelVersionEvent]] = relationship(
         back_populates="model_version",
         cascade="all, delete-orphan",
         order_by="ModelVersionEvent.id",  # chronological (UUIDv7)
@@ -105,8 +109,8 @@ class ModelVersionEvent(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     correlation_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
-    model_version: Mapped["ModelVersion"] = relationship(back_populates="events")
-    actor_user: Mapped["User"] = relationship("User", lazy="selectin", viewonly=True)
+    model_version: Mapped[ModelVersion] = relationship(back_populates="events")
+    actor_user: Mapped[User] = relationship("User", lazy="selectin", viewonly=True)
 
     @property
     def actor(self) -> str | None:
