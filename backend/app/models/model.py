@@ -72,7 +72,42 @@ class ModelVersion(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
 
     model: Mapped["Model"] = relationship(back_populates="versions")
+    events: Mapped[list["ModelVersionEvent"]] = relationship(
+        back_populates="model_version",
+        cascade="all, delete-orphan",
+        order_by="ModelVersionEvent.id",  # chronological (UUIDv7)
+    )
 
     @property
     def approved(self) -> bool:
         return self.approved_at is not None
+
+
+class ModelVersionEvent(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    """Audit trail of a version's lifecycle transitions."""
+
+    __tablename__ = "model_version_events"
+
+    model_version_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("model_versions.id", ondelete="CASCADE"),
+        index=True, nullable=False,
+    )
+    # e.g. "created", "validated", "approved", "promoted", "archived".
+    event: Mapped[str] = mapped_column(String(64), nullable=False)
+    from_stage: Mapped[LifecycleStage | None] = mapped_column(
+        SAEnum(LifecycleStage, native_enum=False, length=32), nullable=True
+    )
+    to_stage: Mapped[LifecycleStage] = mapped_column(
+        SAEnum(LifecycleStage, native_enum=False, length=32), nullable=False
+    )
+    actor_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("users.id"), nullable=True
+    )
+    correlation_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+
+    model_version: Mapped["ModelVersion"] = relationship(back_populates="events")
+    actor_user: Mapped["User"] = relationship("User", lazy="selectin", viewonly=True)
+
+    @property
+    def actor(self) -> str | None:
+        return self.actor_user.username if self.actor_user else None

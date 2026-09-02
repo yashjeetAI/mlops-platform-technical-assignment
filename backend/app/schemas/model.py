@@ -73,3 +73,20 @@ class ModelVersionPage(CamelModel):
     total: int
     limit: int
     offset: int
+
+
+class ModelVersionEventResponse(CamelModel):
+    id: UUID
+    event: str
+    from_stage: LifecycleStage | None
+    to_stage: LifecycleStage
+    actor: str | None
+    correlation_id: str | None
+    created_at: datetime
+
+
+class ModelVersionEventPage(CamelModel):
+    items: list[ModelVersionEventResponse]
+    total: int
+    limit: int
+    offset: int

@@ -17,3 +17,4 @@ Alternatives Considered, Consequences, Follow-up Actions.
 | [0006](0006-observability-logging.md) | Observability — structured logging & correlation IDs | Accepted |
 | [0007](0007-async-deployment-execution.md) | Asynchronous deployment execution | Accepted |
 | [0008](0008-idempotency-and-rollback.md) | Deployment idempotency & rollback safety | Accepted |
+| [0009](0009-deployment-eligibility.md) | Deployment eligibility (stage-gating) | Accepted |

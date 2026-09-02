@@ -7,13 +7,16 @@ source of truth.
 from app.core.enums import LifecycleStage as S
 from app.core.exceptions import ApprovalRequired, InvalidStateTransition
 
-# Legal forward/back transitions. ARCHIVED is terminal.
+# Forward-only lifecycle: a version is promoted one step at a time or ARCHIVED
+# (retired) from any stage. There are no demotions — approval/promotion is
+# monotonic; you retire and ship a new version rather than un-promoting. ARCHIVED
+# is terminal.
 ALLOWED_TRANSITIONS: dict[S, set[S]] = {
     S.DRAFT: {S.VALIDATED, S.ARCHIVED},
-    S.VALIDATED: {S.APPROVED, S.DRAFT, S.ARCHIVED},
-    S.APPROVED: {S.STAGING, S.VALIDATED, S.ARCHIVED},
-    S.STAGING: {S.PRODUCTION, S.APPROVED, S.ARCHIVED},
-    S.PRODUCTION: {S.STAGING, S.ARCHIVED},
+    S.VALIDATED: {S.APPROVED, S.ARCHIVED},
+    S.APPROVED: {S.STAGING, S.ARCHIVED},
+    S.STAGING: {S.PRODUCTION, S.ARCHIVED},
+    S.PRODUCTION: {S.ARCHIVED},
     S.ARCHIVED: set(),
 }
 

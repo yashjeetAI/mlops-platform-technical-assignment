@@ -5,6 +5,7 @@ take an explicit Session (see ADR-0001) and raise domain errors (see exceptions.
 """
 import uuid
 
+import structlog
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
@@ -13,11 +14,43 @@ from app.core.exceptions import ConflictError, NotFoundError
 from app.core.logging import get_logger
 from app.core.text import slugify
 from app.models.mixins import utcnow
-from app.models.model import Model, ModelVersion
+from app.models.model import Model, ModelVersion, ModelVersionEvent
 from app.schemas.model import ModelCreate, ModelVersionCreate
 from app.services import lifecycle
 
 logger = get_logger("registry")
+
+
+def _event_name(from_stage: LifecycleStage | None, to_stage: LifecycleStage) -> str:
+    if to_stage == LifecycleStage.ARCHIVED:
+        return "archived"
+    if from_stage is None:
+        return "created"
+    if to_stage == LifecycleStage.APPROVED:
+        return "approved"
+    if to_stage == LifecycleStage.VALIDATED:
+        return "validated"
+    return "promoted"
+
+
+def _record_version_event(
+    db: Session,
+    version: ModelVersion,
+    from_stage: LifecycleStage | None,
+    to_stage: LifecycleStage,
+    actor_id: uuid.UUID,
+) -> None:
+    """Append a lifecycle audit event (caller commits)."""
+    db.add(
+        ModelVersionEvent(
+            model_version_id=version.id,
+            event=_event_name(from_stage, to_stage),
+            from_stage=from_stage,
+            to_stage=to_stage,
+            actor_id=actor_id,
+            correlation_id=structlog.contextvars.get_contextvars().get("correlation_id"),
+        )
+    )
 
 
 # --- models ---
@@ -109,6 +142,8 @@ def create_version(
         created_by=actor_id,
     )
     db.add(version)
+    db.flush()  # assign id before recording the event
+    _record_version_event(db, version, None, LifecycleStage.DRAFT, actor_id)
     db.commit()
     db.refresh(version)
     logger.info(
@@ -149,16 +184,39 @@ def get_version(db: Session, version_id: uuid.UUID) -> ModelVersion:
     return version
 
 
+def list_version_events(
+    db: Session, version_id: uuid.UUID, *, limit: int = 50, offset: int = 0
+) -> tuple[list[ModelVersionEvent], int]:
+    """Return (page of lifecycle events, total) for a version, chronological."""
+    get_version(db, version_id)  # 404 if missing
+    where = ModelVersionEvent.model_version_id == version_id
+    total = db.execute(
+        select(func.count()).select_from(ModelVersionEvent).where(where)
+    ).scalar_one()
+    items = list(
+        db.execute(
+            select(ModelVersionEvent)
+            .where(where)
+            .order_by(ModelVersionEvent.id)  # chronological (UUIDv7)
+            .offset(offset)
+            .limit(limit)
+        ).scalars()
+    )
+    return items, total
+
+
 def approve_version(
     db: Session, actor_id: uuid.UUID, version_id: uuid.UUID
 ) -> ModelVersion:
     """Approve a version (VALIDATED -> APPROVED), recording the approver."""
     version = get_version(db, version_id)
     # Approving grants approval, so validate with approved=True.
-    lifecycle.validate_transition(version.stage, LifecycleStage.APPROVED, approved=True)
+    from_stage = version.stage
+    lifecycle.validate_transition(from_stage, LifecycleStage.APPROVED, approved=True)
     version.approved_at = utcnow()
     version.approved_by = actor_id
     version.stage = LifecycleStage.APPROVED
+    _record_version_event(db, version, from_stage, LifecycleStage.APPROVED, actor_id)
     db.commit()
     db.refresh(version)
     logger.info("version_approved", version_id=str(version_id), actor=str(actor_id))
@@ -166,13 +224,14 @@ def approve_version(
 
 
 def transition_version(
-    db: Session, version_id: uuid.UUID, target: LifecycleStage
+    db: Session, actor_id: uuid.UUID, version_id: uuid.UUID, target: LifecycleStage
 ) -> ModelVersion:
     """Move a version to `target`, enforcing legality and the approval gate."""
     version = get_version(db, version_id)
     from_stage = version.stage
     lifecycle.validate_transition(from_stage, target, approved=version.approved)
     version.stage = target
+    _record_version_event(db, version, from_stage, target, actor_id)
     db.commit()
     db.refresh(version)
     logger.info(

@@ -51,6 +51,23 @@ export interface ModelVersionPage {
   offset: number;
 }
 
+export interface ModelVersionEvent {
+  id: string;
+  event: string;
+  fromStage: LifecycleStage | null;
+  toStage: LifecycleStage;
+  actor: string | null;
+  correlationId: string | null;
+  createdAt: string;
+}
+
+export interface ModelVersionEventPage {
+  items: ModelVersionEvent[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 export interface CreateModel {
   name: string;
   owner: string;
@@ -85,18 +102,10 @@ export interface CreateVersion {
  */
 export const PROMOTE_TARGETS: Record<LifecycleStage, LifecycleStage[]> = {
   [LifecycleStage.DRAFT]: [LifecycleStage.VALIDATED, LifecycleStage.ARCHIVED],
-  [LifecycleStage.VALIDATED]: [LifecycleStage.DRAFT, LifecycleStage.ARCHIVED],
-  [LifecycleStage.APPROVED]: [
-    LifecycleStage.STAGING,
-    LifecycleStage.VALIDATED,
-    LifecycleStage.ARCHIVED,
-  ],
-  [LifecycleStage.STAGING]: [
-    LifecycleStage.PRODUCTION,
-    LifecycleStage.APPROVED,
-    LifecycleStage.ARCHIVED,
-  ],
-  [LifecycleStage.PRODUCTION]: [LifecycleStage.STAGING, LifecycleStage.ARCHIVED],
+  [LifecycleStage.VALIDATED]: [LifecycleStage.ARCHIVED],
+  [LifecycleStage.APPROVED]: [LifecycleStage.STAGING, LifecycleStage.ARCHIVED],
+  [LifecycleStage.STAGING]: [LifecycleStage.PRODUCTION, LifecycleStage.ARCHIVED],
+  [LifecycleStage.PRODUCTION]: [LifecycleStage.ARCHIVED],
   [LifecycleStage.ARCHIVED]: [],
 };
 

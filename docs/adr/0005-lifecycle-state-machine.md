@@ -13,6 +13,10 @@ isolation, and produce clear errors — not scattered `if` checks across routes.
 - Model the lifecycle as an explicit **state machine** in `services/lifecycle.py`: an
   `ALLOWED_TRANSITIONS` map plus `validate_transition(current, target, approved)`. Pure
   functions over the `LifecycleStage` enum — no DB, no HTTP.
+- **Forward-only**: a version is promoted one step at a time
+  (`DRAFT→VALIDATED→APPROVED→STAGING→PRODUCTION`) or **ARCHIVED** (retired) from any stage.
+  There are **no demotions** — approval/promotion is monotonic; a version is retired and a new
+  one shipped rather than un-promoted. ARCHIVED is terminal.
 - **Approval is a distinct fact** (`approved_at`/`approved_by` on the version), exposed as a
   derived `approved` boolean. `APPROVED`/`STAGING`/`PRODUCTION` may only be entered by an
   approved version (belt-and-suspenders on top of the structural transition rules).
@@ -42,6 +46,6 @@ isolation, and produce clear errors — not scattered `if` checks across routes.
   acceptable, and both are covered by tests.
 
 ## Follow-up Actions
-- Reuse the same machine for deployment-time validation (block deploying non-Production-ready
-  versions) in the deployments slice.
-- Revisit allowed back-transitions (e.g. PRODUCTION → STAGING) when rollback semantics land.
+- Deployment eligibility is stage-gated against this lifecycle (see ADR-0009): a version must be
+  promoted to a stage before it can deploy to the matching environment.
+- Every transition is recorded as a `ModelVersionEvent` for audit history.

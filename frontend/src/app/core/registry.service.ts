@@ -10,6 +10,7 @@ import {
   ModelPage,
   ModelSummary,
   ModelVersion,
+  ModelVersionEventPage,
   ModelVersionPage,
 } from './registry.models';
 
@@ -38,6 +39,18 @@ export class RegistryService {
   ): Observable<ModelVersionPage> {
     const params = new HttpParams().set('limit', opts.limit).set('offset', opts.offset);
     return this.http.get<ModelVersionPage>(`${this.base}/${modelId}/versions`, { params });
+  }
+
+  listVersionEvents(
+    modelId: string,
+    versionId: string,
+    opts: { limit: number; offset: number },
+  ): Observable<ModelVersionEventPage> {
+    const params = new HttpParams().set('limit', opts.limit).set('offset', opts.offset);
+    return this.http.get<ModelVersionEventPage>(
+      `${this.base}/${modelId}/versions/${versionId}/events`,
+      { params },
+    );
   }
 
   createModel(payload: CreateModel): Observable<ModelSummary> {
