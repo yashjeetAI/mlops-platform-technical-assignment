@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from app.api.middleware import CorrelationIdMiddleware
-from app.api.routes import auth, health, models
+from app.api.routes import auth, deployments, health, models
 from app.core.config import get_settings
 from app.core.exceptions import (
     ApprovalRequired,
@@ -47,6 +47,7 @@ app.add_middleware(CorrelationIdMiddleware)
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(models.router)
+app.include_router(deployments.router)
 
 
 # Map domain errors to consistent HTTP responses (keeps services HTTP-agnostic).

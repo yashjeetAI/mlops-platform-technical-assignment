@@ -40,3 +40,20 @@ class Environment(StrEnum):
     DEVELOPMENT = "DEVELOPMENT"
     STAGING = "STAGING"
     PRODUCTION = "PRODUCTION"
+
+
+class DeploymentStatus(StrEnum):
+    """Deployment execution states, driven by the async worker.
+
+    REQUESTED -> VALIDATING -> DEPLOYING -> SUCCEEDED
+                     \\-------------\\--> FAILED (-> retry -> REQUESTED)
+    SUCCEEDED -> ROLLED_BACK
+    """
+
+    REQUESTED = "REQUESTED"
+    VALIDATING = "VALIDATING"
+    DEPLOYING = "DEPLOYING"
+    SUCCEEDED = "SUCCEEDED"
+    FAILED = "FAILED"
+    ROLLED_BACK = "ROLLED_BACK"
+

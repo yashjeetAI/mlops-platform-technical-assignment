@@ -15,3 +15,5 @@ Alternatives Considered, Consequences, Follow-up Actions.
 | [0004](0004-api-naming-convention.md) | API naming convention (camelCase JSON boundary) | Accepted |
 | [0005](0005-lifecycle-state-machine.md) | Model-version lifecycle state machine | Accepted |
 | [0006](0006-observability-logging.md) | Observability — structured logging & correlation IDs | Accepted |
+| [0007](0007-async-deployment-execution.md) | Asynchronous deployment execution | Accepted |
+| [0008](0008-idempotency-and-rollback.md) | Deployment idempotency & rollback safety | Accepted |
