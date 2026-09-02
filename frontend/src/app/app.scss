@@ -1,37 +1,81 @@
 :host {
   display: block;
-  min-height: 100dvh;
-  background: var(--abb-gray-100);
+  height: 100dvh;
 }
 
-.app-bar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
+.shell {
+  height: 100dvh;
+}
+
+// --- Sidebar ---
+.sidenav {
+  width: 240px;
   background: #fff;
-  color: var(--abb-black);
-  border-bottom: 3px solid var(--abb-red);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-right: 1px solid var(--abb-gray-300);
 }
 
-.app-bar-brand {
-  display: inline-flex;
-  align-items: center;
+.side-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  height: 64px;
+  padding: 0 1.25rem;
   text-decoration: none;
-  color: inherit;
+  border-bottom: 3px solid var(--abb-red);
 }
 
-.app-bar-mark {
+.brand-mark {
   font-weight: 800;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   letter-spacing: 0.02em;
   color: var(--abb-red);
 }
 
+.brand-app {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--abb-black);
+}
+
+.nav {
+  padding-top: 0.5rem;
+}
+
+// Active nav item: ABB-red accent bar + tinted background.
+.nav .active-link {
+  background: rgba(255, 0, 15, 0.08);
+  box-shadow: inset 3px 0 0 var(--abb-red);
+}
+
+.nav .active-link .mdc-list-item__primary-text,
+.nav .active-link mat-icon {
+  color: var(--abb-red);
+  font-weight: 600;
+}
+
+.soon-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--abb-gray-500);
+  background: var(--abb-gray-100);
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+}
+
+// --- Top bar ---
+.app-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #fff;
+  color: var(--abb-black);
+  border-bottom: 1px solid var(--abb-gray-300);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
 .app-bar-title {
-  margin-left: 0.75rem;
-  padding-left: 0.75rem;
-  border-left: 1px solid var(--abb-gray-300);
   font-size: 1rem;
   font-weight: 600;
 }
@@ -60,17 +104,21 @@
   letter-spacing: 0.03em;
 }
 
-.app-content {
-  display: block;
+// --- Content ---
+.content-wrap {
+  background: var(--abb-gray-100);
+  display: flex;
+  flex-direction: column;
 }
 
-// Mobile: keep only the brand mark + user menu; clamp the username.
+.app-content {
+  flex: 1;
+}
+
 @media (max-width: 600px) {
-  .app-bar-title,
   .app-bar-role {
     display: none;
   }
-
   .app-bar-username {
     max-width: 7.5rem;
     overflow: hidden;
