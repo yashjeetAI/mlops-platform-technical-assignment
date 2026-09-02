@@ -35,7 +35,8 @@ class Model(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     versions: Mapped[list["ModelVersion"]] = relationship(
         back_populates="model",
         cascade="all, delete-orphan",
-        order_by="ModelVersion.created_at",
+        # Newest first (UUIDv7 id is time-ordered).
+        order_by="ModelVersion.id.desc()",
     )
 
 

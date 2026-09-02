@@ -50,8 +50,10 @@ import { CreateVersion } from '../../core/registry.models';
       .dialog-body {
         display: flex;
         flex-direction: column;
-        min-width: 320px;
-        padding-top: 0.5rem;
+        gap: 0.4rem;
+        width: 26rem;
+        max-width: 80vw;
+        padding-top: 0.75rem;
       }
       mat-form-field {
         width: 100%;

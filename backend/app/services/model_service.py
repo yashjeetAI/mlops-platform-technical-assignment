@@ -5,12 +5,13 @@ take an explicit Session (see ADR-0001) and raise domain errors (see exceptions.
 """
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.core.enums import LifecycleStage
 from app.core.exceptions import ConflictError, NotFoundError
 from app.core.logging import get_logger
+from app.core.text import slugify
 from app.models.mixins import utcnow
 from app.models.model import Model, ModelVersion
 from app.schemas.model import ModelCreate, ModelVersionCreate
@@ -21,15 +22,23 @@ logger = get_logger("registry")
 
 # --- models ---
 
+def _unique_key(db: Session, name: str) -> str:
+    """Derive a unique slug from the model name (append -2, -3, … on collision)."""
+    base = slugify(name)
+    key = base
+    n = 2
+    while db.execute(select(Model).where(Model.key == key)).scalar_one_or_none() is not None:
+        key = f"{base}-{n}"
+        n += 1
+    return key
+
+
 def create_model(db: Session, actor_id: uuid.UUID, data: ModelCreate) -> Model:
-    exists = db.execute(select(Model).where(Model.key == data.key)).scalar_one_or_none()
-    if exists is not None:
-        raise ConflictError(f"Model with key '{data.key}' already exists")
     model = Model(
-        key=data.key,
+        key=_unique_key(db, data.name),
         name=data.name,
         owner=data.owner,
-        framework=data.framework,
+        framework=data.framework.value,
         tags=data.tags,
         created_by=actor_id,
     )
@@ -40,8 +49,33 @@ def create_model(db: Session, actor_id: uuid.UUID, data: ModelCreate) -> Model:
     return model
 
 
-def list_models(db: Session) -> list[Model]:
-    return list(db.execute(select(Model).order_by(Model.created_at)).scalars())
+def list_models(
+    db: Session, *, limit: int = 20, offset: int = 0, q: str | None = None
+) -> tuple[list[Model], int]:
+    """Return (page of models, total matching count), newest first.
+
+    `q` filters (case-insensitive) across name/key/owner/framework.
+    """
+    stmt = select(Model)
+    count_stmt = select(func.count()).select_from(Model)
+    if q:
+        pattern = f"%{q}%"
+        cond = or_(
+            Model.name.ilike(pattern),
+            Model.key.ilike(pattern),
+            Model.owner.ilike(pattern),
+            Model.framework.ilike(pattern),
+        )
+        stmt = stmt.where(cond)
+        count_stmt = count_stmt.where(cond)
+
+    total = db.execute(count_stmt).scalar_one()
+    items = list(
+        db.execute(
+            stmt.order_by(Model.id.desc()).offset(offset).limit(limit)  # newest first
+        ).scalars()
+    )
+    return items, total
 
 
 def get_model(db: Session, model_id: uuid.UUID) -> Model:
@@ -87,15 +121,25 @@ def create_version(
     return version
 
 
-def list_versions(db: Session, model_id: uuid.UUID) -> list[ModelVersion]:
-    get_model(db, model_id)
-    return list(
+def list_versions(
+    db: Session, model_id: uuid.UUID, *, limit: int = 20, offset: int = 0
+) -> tuple[list[ModelVersion], int]:
+    """Return (page of versions, total count) for a model, newest first."""
+    get_model(db, model_id)  # 404 if the model is missing
+    where = ModelVersion.model_id == model_id
+    total = db.execute(
+        select(func.count()).select_from(ModelVersion).where(where)
+    ).scalar_one()
+    items = list(
         db.execute(
             select(ModelVersion)
-            .where(ModelVersion.model_id == model_id)
-            .order_by(ModelVersion.created_at)
+            .where(where)
+            .order_by(ModelVersion.id.desc())  # newest first
+            .offset(offset)
+            .limit(limit)
         ).scalars()
     )
+    return items, total
 
 
 def get_version(db: Session, version_id: uuid.UUID) -> ModelVersion:

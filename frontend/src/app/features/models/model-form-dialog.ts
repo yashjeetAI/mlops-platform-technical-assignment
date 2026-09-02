@@ -4,8 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
-import { CreateModel } from '../../core/registry.models';
+import { CreateModel, FRAMEWORKS } from '../../core/registry.models';
 
 @Component({
   selector: 'app-model-form-dialog',
@@ -14,6 +15,7 @@ import { CreateModel } from '../../core/registry.models';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatButtonModule,
   ],
   template: `
@@ -21,12 +23,9 @@ import { CreateModel } from '../../core/registry.models';
     <form [formGroup]="form" (ngSubmit)="submit()">
       <mat-dialog-content class="dialog-body">
         <mat-form-field appearance="outline">
-          <mat-label>Key (slug)</mat-label>
-          <input matInput formControlName="key" placeholder="pump-failure-predictor" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
           <mat-label>Name</mat-label>
-          <input matInput formControlName="name" />
+          <input matInput formControlName="name" placeholder="Pump Failure Predictor" />
+          <mat-hint><span class="abb-hint">Slug is auto-generated.</span></mat-hint>
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Owner</mat-label>
@@ -34,7 +33,11 @@ import { CreateModel } from '../../core/registry.models';
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Framework</mat-label>
-          <input matInput formControlName="framework" placeholder="scikit-learn" />
+          <mat-select formControlName="framework">
+            @for (fw of frameworks; track fw) {
+              <mat-option [value]="fw">{{ fw }}</mat-option>
+            }
+          </mat-select>
         </mat-form-field>
       </mat-dialog-content>
       <mat-dialog-actions align="end">
@@ -50,11 +53,16 @@ import { CreateModel } from '../../core/registry.models';
       .dialog-body {
         display: flex;
         flex-direction: column;
-        min-width: 320px;
-        padding-top: 0.5rem;
+        gap: 0.4rem;
+        width: 26rem;
+        max-width: 80vw;
+        padding-top: 0.75rem;
       }
       mat-form-field {
         width: 100%;
+      }
+      .abb-hint {
+        color: var(--abb-red);
       }
     `,
   ],
@@ -63,8 +71,9 @@ export class ModelFormDialog {
   private readonly fb = inject(FormBuilder);
   private readonly ref = inject(MatDialogRef<ModelFormDialog, CreateModel>);
 
+  readonly frameworks = FRAMEWORKS;
+
   readonly form = this.fb.nonNullable.group({
-    key: ['', Validators.required],
     name: ['', Validators.required],
     owner: ['', Validators.required],
     framework: ['', Validators.required],

@@ -4,17 +4,17 @@ from uuid import UUID
 
 from pydantic import Field
 
-from app.core.enums import LifecycleStage
+from app.core.enums import Framework, LifecycleStage
 from app.schemas.base import CamelModel
 
 
 # --- requests ---
 
 class ModelCreate(CamelModel):
-    key: str = Field(min_length=1, max_length=128)
+    # `key` (slug) is derived from `name` by the backend, not supplied by the client.
     name: str = Field(min_length=1, max_length=255)
     owner: str = Field(min_length=1, max_length=255)
-    framework: str = Field(min_length=1, max_length=64)
+    framework: Framework
     tags: dict = Field(default_factory=dict)
 
 
@@ -61,5 +61,15 @@ class ModelResponse(CamelModel):
     updated_at: datetime
 
 
-class ModelDetailResponse(ModelResponse):
-    versions: list[ModelVersionResponse] = Field(default_factory=list)
+class ModelPage(CamelModel):
+    items: list[ModelResponse]
+    total: int
+    limit: int
+    offset: int
+
+
+class ModelVersionPage(CamelModel):
+    items: list[ModelVersionResponse]
+    total: int
+    limit: int
+    offset: int

@@ -1,12 +1,17 @@
 import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { map } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
 
 import { AuthService } from '../../core/auth.service';
 import { Role } from '../../core/models';
@@ -14,7 +19,7 @@ import { apiErrorMessage, RegistryService } from '../../core/registry.service';
 import {
   CreateVersion,
   LifecycleStage,
-  ModelDetail as ModelDetailData,
+  ModelSummary,
   ModelVersion,
   PROMOTE_TARGETS,
   stageClass,
@@ -31,6 +36,8 @@ import { VersionFormDialog } from './version-form-dialog';
     MatMenuModule,
     MatProgressSpinnerModule,
     MatDialogModule,
+    MatTableModule,
+    MatPaginatorModule,
   ],
   templateUrl: './model-detail.html',
   styleUrl: './model-detail.scss',
@@ -41,10 +48,21 @@ export class ModelDetail {
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly snack = inject(MatSnackBar);
+  private readonly breakpoints = inject(BreakpointObserver);
 
   private readonly modelId = this.route.snapshot.paramMap.get('id')!;
 
-  readonly model = signal<ModelDetailData | null>(null);
+  readonly isHandset = toSignal(
+    this.breakpoints.observe(Breakpoints.Handset).pipe(map((r) => r.matches)),
+    { initialValue: false },
+  );
+  readonly columns = ['version', 'stage', 'artifact', 'algorithm', 'actions'];
+
+  readonly model = signal<ModelSummary | null>(null);
+  readonly versions = signal<ModelVersion[]>([]);
+  readonly total = signal(0);
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 
@@ -52,7 +70,6 @@ export class ModelDetail {
   readonly canApprove = this.auth.hasRole(Role.APPROVER);
 
   readonly stageClass = stageClass;
-  readonly Stage = LifecycleStage;
 
   constructor() {
     this.load();
@@ -64,13 +81,38 @@ export class ModelDetail {
     this.registry.getModel(this.modelId).subscribe({
       next: (model) => {
         this.model.set(model);
-        this.loading.set(false);
+        this.loadVersions();
       },
       error: (err) => {
         this.error.set(apiErrorMessage(err, 'Failed to load model.'));
         this.loading.set(false);
       },
     });
+  }
+
+  loadVersions(): void {
+    this.registry
+      .listVersions(this.modelId, {
+        limit: this.pageSize(),
+        offset: this.pageIndex() * this.pageSize(),
+      })
+      .subscribe({
+        next: (page) => {
+          this.versions.set(page.items);
+          this.total.set(page.total);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.error.set(apiErrorMessage(err, 'Failed to load versions.'));
+          this.loading.set(false);
+        },
+      });
+  }
+
+  onPage(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    this.loadVersions();
   }
 
   promoteTargets(version: ModelVersion): LifecycleStage[] {
@@ -88,7 +130,10 @@ export class ModelDetail {
         return;
       }
       this.registry.createVersion(this.modelId, payload).subscribe({
-        next: () => this.afterAction(`Version ${payload.version} registered`),
+        next: () => {
+          this.pageIndex.set(0);
+          this.afterAction(`Version ${payload.version} registered`);
+        },
         error: (err) => this.fail(err),
       });
     });
@@ -110,7 +155,7 @@ export class ModelDetail {
 
   private afterAction(message: string): void {
     this.snack.open(message, 'Dismiss', { duration: 3000 });
-    this.load();
+    this.loadVersions();
   }
 
   private fail(err: unknown): void {

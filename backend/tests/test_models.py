@@ -4,7 +4,6 @@ import uuid
 from tests.conftest import auth_header
 
 MODEL = {
-    "key": "pump-failure-predictor",
     "name": "Pump Failure Predictor",
     "owner": "Reliability AI Team",
     "framework": "scikit-learn",
@@ -34,26 +33,76 @@ def _create_version(client, hdr, model_id, version="1.0.0"):
 
 # --- happy path / CRUD ---
 
-def test_create_and_get_model_with_versions(client):
+def test_create_model_and_list_versions(client):
     eng = auth_header(client, "engineer")
     model_id = _create_model(client, eng)
     _create_version(client, eng, model_id, "1.0.0")
     _create_version(client, eng, model_id, "2.0.0")
 
-    detail = client.get(f"/models/{model_id}", headers=eng).json()
-    assert detail["key"] == "pump-failure-predictor"
-    assert len(detail["versions"]) == 2
-    v = detail["versions"][0]
+    meta = client.get(f"/models/{model_id}", headers=eng).json()
+    assert meta["key"] == "pump-failure-predictor"  # slug derived from name
+    assert "versions" not in meta  # single-model endpoint returns meta only
+
+    page = client.get(f"/models/{model_id}/versions", headers=eng).json()
+    assert page["total"] == 2
+    assert [v["version"] for v in page["items"]] == ["2.0.0", "1.0.0"]  # newest first
+    v = page["items"][0]
     assert v["stage"] == "DRAFT"
     assert v["approved"] is False
     assert v["artifactUri"].startswith("s3://")  # camelCase contract
+
+
+def test_versions_pagination(client):
+    eng = auth_header(client, "engineer")
+    model_id = _create_model(client, eng)
+    for i in range(3):
+        _create_version(client, eng, model_id, f"1.0.{i}")
+
+    p1 = client.get(f"/models/{model_id}/versions?limit=2&offset=0", headers=eng).json()
+    assert p1["total"] == 3 and len(p1["items"]) == 2
+    p2 = client.get(f"/models/{model_id}/versions?limit=2&offset=2", headers=eng).json()
+    assert len(p2["items"]) == 1
 
 
 def test_list_models_visible_to_viewer(client):
     _create_model(client, auth_header(client, "engineer"))
     resp = client.get("/models", headers=auth_header(client, "viewer"))
     assert resp.status_code == 200
-    assert len(resp.json()) == 1
+    body = resp.json()
+    assert body["total"] == 1
+    assert len(body["items"]) == 1
+
+
+def test_models_pagination(client):
+    eng = auth_header(client, "engineer")
+    for i in range(3):
+        client.post("/models", json={**MODEL, "name": f"Model {i}"}, headers=eng)
+
+    page1 = client.get("/models?limit=2&offset=0", headers=eng).json()
+    assert page1["total"] == 3
+    assert len(page1["items"]) == 2
+
+    page2 = client.get("/models?limit=2&offset=2", headers=eng).json()
+    assert len(page2["items"]) == 1
+    # newest first, no overlap between pages
+    ids = {m["id"] for m in page1["items"]} | {m["id"] for m in page2["items"]}
+    assert len(ids) == 3
+
+
+def test_models_server_side_search(client):
+    eng = auth_header(client, "engineer")
+    client.post("/models", json={**MODEL, "name": "Compressor Anomaly"}, headers=eng)
+    client.post("/models", json={**MODEL, "name": "Pump Failure"}, headers=eng)
+
+    resp = client.get("/models?q=compressor", headers=eng).json()
+    assert resp["total"] == 1
+    assert resp["items"][0]["name"] == "Compressor Anomaly"
+
+
+def test_invalid_pagination_rejected(client):
+    eng = auth_header(client, "engineer")
+    assert client.get("/models?limit=0", headers=eng).status_code == 422
+    assert client.get("/models?limit=500", headers=eng).status_code == 422
 
 
 # --- lifecycle: full promotion to Production ---
@@ -126,11 +175,19 @@ def test_unauthenticated_is_rejected(client):
 
 # --- conflicts / not found ---
 
-def test_duplicate_model_key_conflicts(client):
+def test_duplicate_name_gets_unique_slug(client):
     eng = auth_header(client, "engineer")
-    _create_model(client, eng)
-    resp = client.post("/models", json=MODEL, headers=eng)
-    assert resp.status_code == 409
+    first = client.post("/models", json=MODEL, headers=eng).json()
+    second = client.post("/models", json=MODEL, headers=eng)
+    assert second.status_code == 201  # no conflict — slug is uniquified
+    assert first["key"] == "pump-failure-predictor"
+    assert second.json()["key"] == "pump-failure-predictor-2"
+
+
+def test_invalid_framework_rejected(client):
+    eng = auth_header(client, "engineer")
+    resp = client.post("/models", json={**MODEL, "framework": "cobol-ml"}, headers=eng)
+    assert resp.status_code == 422  # not in the Framework enum
 
 
 def test_duplicate_version_conflicts(client):

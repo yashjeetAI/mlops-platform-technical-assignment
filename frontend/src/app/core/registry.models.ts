@@ -37,17 +37,39 @@ export interface ModelVersion {
   updatedAt: string;
 }
 
-export interface ModelDetail extends ModelSummary {
-  versions: ModelVersion[];
+export interface ModelPage {
+  items: ModelSummary[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface ModelVersionPage {
+  items: ModelVersion[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 export interface CreateModel {
-  key: string;
   name: string;
   owner: string;
   framework: string;
   tags?: Record<string, unknown>;
 }
+
+/** Supported frameworks — mirrors the backend `Framework` enum. */
+export const FRAMEWORKS = [
+  'scikit-learn',
+  'pytorch',
+  'tensorflow',
+  'keras',
+  'xgboost',
+  'lightgbm',
+  'onnx',
+  'transformers',
+  'other',
+] as const;
 
 export interface CreateVersion {
   version: string;
