@@ -1,5 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { map } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -8,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
 
 import { AuthService } from '../../core/auth.service';
 import { Role } from '../../core/models';
@@ -25,6 +29,7 @@ import { ModelFormDialog } from './model-form-dialog';
     MatInputModule,
     MatProgressSpinnerModule,
     MatDialogModule,
+    MatTableModule,
   ],
   templateUrl: './model-list.html',
   styleUrl: './model-list.scss',
@@ -35,6 +40,14 @@ export class ModelList {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly snack = inject(MatSnackBar);
+  private readonly breakpoints = inject(BreakpointObserver);
+
+  /** Table on desktop, cards on small screens. */
+  readonly isHandset = toSignal(
+    this.breakpoints.observe(Breakpoints.Handset).pipe(map((r) => r.matches)),
+    { initialValue: false },
+  );
+  readonly columns = ['name', 'key', 'owner', 'framework', 'action'];
 
   readonly models = signal<ModelSummary[]>([]);
   readonly loading = signal(true);

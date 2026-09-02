@@ -49,6 +49,52 @@
   width: 2rem;
 }
 
+// --- Desktop table ---
+.table-wrap {
+  background: #fff;
+  border: 1px solid var(--abb-gray-300);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.models-table {
+  width: 100%;
+  background: #fff;
+}
+
+.models-table th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--abb-gray-500);
+  font-weight: 700;
+}
+
+.cell-name {
+  font-weight: 600;
+  color: var(--abb-black);
+}
+
+.model-row {
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.model-row:hover {
+  background: rgba(255, 0, 15, 0.04);
+}
+
+.model-row:hover .cell-action mat-icon {
+  color: var(--abb-red);
+}
+
+.cell-action {
+  width: 40px;
+  text-align: right;
+  color: var(--abb-gray-500);
+}
+
+// --- Mobile cards ---
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
