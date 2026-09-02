@@ -37,20 +37,31 @@
   color: var(--abb-black);
 }
 
+// Inset the list so the M3 pills don't touch (and clip against) the rail edges.
 .nav {
-  padding-top: 0.5rem;
+  padding: 0.5rem 0.5rem;
 }
 
-// Active nav item: ABB-red accent bar + tinted background.
+.nav a[mat-list-item] {
+  border-radius: 8px;
+  margin-bottom: 2px;
+}
+
+// Active nav item: clean ABB-red tint + red label (no accent sliver).
 .nav .active-link {
-  background: rgba(255, 0, 15, 0.08);
-  box-shadow: inset 3px 0 0 var(--abb-red);
+  background: rgba(255, 0, 15, 0.1);
 }
 
-.nav .active-link .mdc-list-item__primary-text,
+.nav .active-link ::ng-deep .mdc-list-item__primary-text,
 .nav .active-link mat-icon {
   color: var(--abb-red);
   font-weight: 600;
+}
+
+// "Soon" (disabled) items: muted, no heavy surface.
+.nav a[mat-list-item][disabled] {
+  opacity: 0.6;
+  background: transparent;
 }
 
 .soon-tag {
