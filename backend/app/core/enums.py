@@ -16,3 +16,27 @@ class Role(StrEnum):
     ENGINEER = "ENGINEER"
     APPROVER = "APPROVER"
     ADMIN = "ADMIN"
+
+
+class LifecycleStage(StrEnum):
+    """Model-version lifecycle stages.
+
+    Ordered progression: DRAFT -> VALIDATED -> APPROVED -> STAGING -> PRODUCTION,
+    with ARCHIVED reachable as a terminal retirement state. Transition legality is
+    enforced by the lifecycle state machine (see services/lifecycle.py).
+    """
+
+    DRAFT = "DRAFT"
+    VALIDATED = "VALIDATED"
+    APPROVED = "APPROVED"
+    STAGING = "STAGING"
+    PRODUCTION = "PRODUCTION"
+    ARCHIVED = "ARCHIVED"
+
+
+class Environment(StrEnum):
+    """Deployment target environments."""
+
+    DEVELOPMENT = "DEVELOPMENT"
+    STAGING = "STAGING"
+    PRODUCTION = "PRODUCTION"

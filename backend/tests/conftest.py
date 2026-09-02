@@ -10,6 +10,7 @@ from app.db.session import Base, get_db
 from app.main import app
 
 # Import all models so metadata is fully populated.
+from app.models import model as _model  # noqa: F401
 from app.models import user as _user  # noqa: F401
 
 
