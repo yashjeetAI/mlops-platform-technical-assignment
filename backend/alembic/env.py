@@ -14,6 +14,7 @@ from app.db.session import Base  # noqa: E402
 
 # Import all model modules so their tables register on Base.metadata
 # (required for autogenerate to detect them).
+from app.models import model as _model  # noqa: E402,F401
 from app.models import user as _user  # noqa: E402,F401
 
 config = context.config
