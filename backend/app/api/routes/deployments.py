@@ -1,7 +1,7 @@
 """Deployment routes."""
 import uuid
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, require_roles
@@ -12,7 +12,7 @@ from app.models.user import User
 from app.schemas.deployment import (
     DeploymentCreate,
     DeploymentDetailResponse,
-    DeploymentResponse,
+    DeploymentPage,
 )
 from app.services import deployment_service
 
@@ -36,12 +36,15 @@ def request_deployment(
     return deployment
 
 
-@router.get("", response_model=list[DeploymentResponse])
+@router.get("", response_model=DeploymentPage)
 def list_deployments(
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
 ):
-    return deployment_service.list_deployments(db)
+    items, total = deployment_service.list_deployments(db, limit=limit, offset=offset)
+    return DeploymentPage(items=items, total=total, limit=limit, offset=offset)
 
 
 @router.get("/{deployment_id}", response_model=DeploymentDetailResponse)

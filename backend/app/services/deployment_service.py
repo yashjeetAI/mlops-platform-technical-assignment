@@ -5,7 +5,7 @@ then a best-effort NOTIFY wakes the worker; the poller is the safety net.
 """
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -27,10 +27,20 @@ def get_deployment(db: Session, deployment_id: uuid.UUID) -> Deployment:
     return deployment
 
 
-def list_deployments(db: Session) -> list[Deployment]:
-    return list(
-        db.execute(select(Deployment).order_by(Deployment.created_at.desc())).scalars()
+def list_deployments(
+    db: Session, *, limit: int = 20, offset: int = 0
+) -> tuple[list[Deployment], int]:
+    """Return (page of deployments, total), newest first."""
+    total = db.execute(select(func.count()).select_from(Deployment)).scalar_one()
+    items = list(
+        db.execute(
+            select(Deployment)
+            .order_by(Deployment.id.desc())  # newest first
+            .offset(offset)
+            .limit(limit)
+        ).scalars()
     )
+    return items, total
 
 
 def _assert_deployable(version: ModelVersion, environment: Environment) -> None:

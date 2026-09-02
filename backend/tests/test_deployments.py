@@ -109,7 +109,11 @@ def test_duplicate_request_is_idempotent(client):
     assert first.status_code == 202
     assert second.status_code == 200  # replay, not created
     assert first.json()["id"] == second.json()["id"]
-    assert len(client.get("/deployments", headers=eng).json()) == 1
+    page = client.get("/deployments", headers=eng).json()
+    assert page["total"] == 1
+    # enriched for display
+    assert page["items"][0]["version"] == "1.0.0"
+    assert page["items"][0]["modelKey"] is not None
 
 
 # --- worker execution ---

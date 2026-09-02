@@ -23,5 +23,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./features/models/model-detail').then((m) => m.ModelDetail),
   },
+  {
+    path: 'deployments',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/deployments/deployment-list').then((m) => m.DeploymentList),
+  },
   { path: '**', redirectTo: '' },
 ];
