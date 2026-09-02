@@ -12,6 +12,8 @@
       <mat-card
         class="cap-card"
         [class.cap-disabled]="!cap.allowed"
+        [class.cap-link]="cap.allowed && cap.route"
+        [routerLink]="cap.allowed && cap.route ? cap.route : null"
         appearance="outlined"
       >
         <div class="cap-icon">

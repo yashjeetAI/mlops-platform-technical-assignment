@@ -1,7 +1,9 @@
 @if (auth.isAuthenticated()) {
   <mat-toolbar class="app-bar">
-    <span class="app-bar-mark">ABB</span>
-    <span class="app-bar-title">MLOps Platform</span>
+    <a routerLink="/" class="app-bar-brand">
+      <span class="app-bar-mark">ABB</span>
+      <span class="app-bar-title">MLOps Platform</span>
+    </a>
     <span class="app-bar-spacer"></span>
 
     <button mat-button [matMenuTriggerFor]="menu" class="app-bar-user">

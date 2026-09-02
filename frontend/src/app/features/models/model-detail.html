@@ -1,0 +1,74 @@
+<div class="page">
+  <a routerLink="/models" class="back"><mat-icon>arrow_back</mat-icon> Registry</a>
+
+  @if (loading()) {
+    <div class="state"><mat-spinner diameter="36" /><span>Loading…</span></div>
+  } @else if (error()) {
+    <div class="state state-error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <button mat-stroked-button (click)="load()">Retry</button>
+    </div>
+  } @else if (model(); as m) {
+    <header class="detail-head">
+      <div>
+        <h1>{{ m.name }}</h1>
+        <code class="model-key">{{ m.key }}</code>
+      </div>
+      @if (canCreate) {
+        <button mat-flat-button color="primary" (click)="addVersion()">
+          <mat-icon>add</mat-icon> New version
+        </button>
+      }
+    </header>
+
+    <dl class="meta">
+      <div><dt>Owner</dt><dd>{{ m.owner }}</dd></div>
+      <div><dt>Framework</dt><dd>{{ m.framework }}</dd></div>
+      <div><dt>Versions</dt><dd>{{ m.versions.length }}</dd></div>
+    </dl>
+
+    <h2 class="section">Versions</h2>
+    @if (m.versions.length === 0) {
+      <div class="state state-empty">
+        <mat-icon>layers</mat-icon>
+        <span>No versions yet.</span>
+      </div>
+    } @else {
+      <div class="versions">
+        @for (v of m.versions; track v.id) {
+          <mat-card class="version" appearance="outlined">
+            <div class="version-main">
+              <span class="version-num">v{{ v.version }}</span>
+              <span [class]="stageClass(v.stage)">{{ v.stage }}</span>
+              @if (v.approved) {
+                <span class="approved"><mat-icon>verified</mat-icon> approved</span>
+              }
+            </div>
+            <div class="version-info">
+              @if (v.algorithm) { <span>{{ v.algorithm }}</span> }
+              <code>{{ v.artifactUri }}</code>
+            </div>
+            <div class="version-actions">
+              @if (canApproveVersion(v)) {
+                <button mat-stroked-button color="primary" (click)="approve(v)">
+                  <mat-icon>verified</mat-icon> Approve
+                </button>
+              }
+              @if (canApprove && promoteTargets(v).length > 0) {
+                <button mat-stroked-button [matMenuTriggerFor]="menu">
+                  Promote <mat-icon>expand_more</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  @for (t of promoteTargets(v); track t) {
+                    <button mat-menu-item (click)="promote(v, t)">{{ t }}</button>
+                  }
+                </mat-menu>
+              }
+            </div>
+          </mat-card>
+        }
+      </div>
+    }
+  }
+</div>

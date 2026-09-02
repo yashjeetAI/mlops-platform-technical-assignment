@@ -1,0 +1,55 @@
+<div class="page">
+  <header class="page-head">
+    <div>
+      <h1>Model registry</h1>
+      <p>Browse registered models and their versions.</p>
+    </div>
+    @if (canCreate) {
+      <button mat-flat-button color="primary" (click)="createModel()">
+        <mat-icon>add</mat-icon> New model
+      </button>
+    }
+  </header>
+
+  <mat-form-field appearance="outline" class="search">
+    <mat-icon matPrefix>search</mat-icon>
+    <mat-label>Search models</mat-label>
+    <input matInput (input)="onSearch($any($event.target).value)" placeholder="name, key, owner, framework" />
+  </mat-form-field>
+
+  @if (loading()) {
+    <div class="state">
+      <mat-spinner diameter="36" />
+      <span>Loading models…</span>
+    </div>
+  } @else if (error()) {
+    <div class="state state-error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <button mat-stroked-button (click)="load()">Retry</button>
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="state state-empty">
+      <mat-icon>inventory_2</mat-icon>
+      <span>{{ models().length === 0 ? 'No models registered yet.' : 'No models match your search.' }}</span>
+    </div>
+  } @else {
+    <div class="grid">
+      @for (m of filtered(); track m.id) {
+        <mat-card class="model-card" appearance="outlined" (click)="open(m)" tabindex="0">
+          <div class="model-top">
+            <h3>{{ m.name }}</h3>
+            <code class="model-key">{{ m.key }}</code>
+          </div>
+          <dl class="model-meta">
+            <div><dt>Owner</dt><dd>{{ m.owner }}</dd></div>
+            <div><dt>Framework</dt><dd>{{ m.framework }}</dd></div>
+          </dl>
+          <div class="model-cta">
+            View versions <mat-icon>arrow_forward</mat-icon>
+          </div>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

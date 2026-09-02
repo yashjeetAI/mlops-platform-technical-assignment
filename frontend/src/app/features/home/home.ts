@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -10,11 +11,12 @@ interface Capability {
   title: string;
   description: string;
   allowed: boolean;
+  route?: string;
 }
 
 @Component({
   selector: 'app-home',
-  imports: [MatCardModule, MatIconModule],
+  imports: [RouterLink, MatCardModule, MatIconModule],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -30,6 +32,7 @@ export class Home {
       title: 'Browse registry',
       description: 'View models, versions and monitoring.',
       allowed: this.auth.hasRole(Role.VIEWER, Role.ENGINEER, Role.APPROVER),
+      route: '/models',
     },
     {
       icon: 'add_box',
