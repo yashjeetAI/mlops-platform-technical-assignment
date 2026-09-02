@@ -1,37 +1,88 @@
 :host {
   display: block;
-  min-height: 100dvh;
-  background: var(--abb-gray-100);
+  height: 100dvh;
 }
 
-.app-bar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
+.shell {
+  height: 100dvh;
+}
+
+// --- Sidebar ---
+.sidenav {
+  width: 240px;
   background: #fff;
-  color: var(--abb-black);
-  border-bottom: 3px solid var(--abb-red);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-right: 1px solid var(--abb-gray-300);
 }
 
-.app-bar-brand {
-  display: inline-flex;
+.side-brand {
+  display: flex;
   align-items: center;
+  gap: 0.45rem;
+  height: 64px;
+  padding: 0 1.25rem;
   text-decoration: none;
-  color: inherit;
+  // Match the toolbar divider so the header strip reads as one continuous line.
+  border-bottom: 1px solid var(--abb-gray-300);
 }
 
-.app-bar-mark {
+.brand-mark {
   font-weight: 800;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
+  line-height: 1;
   letter-spacing: 0.02em;
   color: var(--abb-red);
 }
 
+.brand-app {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--abb-black);
+  // Nudge onto the wordmark's baseline.
+  position: relative;
+  top: 2px;
+}
+
+// Inset the list so the M3 pills don't touch (and clip against) the rail edges.
+.nav {
+  padding: 0.5rem 0.5rem;
+}
+
+.nav a[mat-list-item] {
+  border-radius: 8px;
+  margin-bottom: 2px;
+}
+
+// Active nav item: clean ABB-red tint + red label (no accent sliver).
+.nav .active-link {
+  background: rgba(255, 0, 15, 0.1);
+}
+
+.nav .active-link ::ng-deep .mdc-list-item__primary-text,
+.nav .active-link mat-icon {
+  color: var(--abb-red);
+  font-weight: 600;
+}
+
+
+// "Soon" items: muted, non-navigating (tooltip explains). No heavy disabled surface.
+.nav .nav-soon {
+  opacity: 0.5;
+  cursor: default;
+}
+
+// --- Top bar ---
+.app-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #fff;
+  color: var(--abb-black);
+  border-bottom: 1px solid var(--abb-gray-300);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
 .app-bar-title {
-  margin-left: 0.75rem;
-  padding-left: 0.75rem;
-  border-left: 1px solid var(--abb-gray-300);
   font-size: 1rem;
   font-weight: 600;
 }
@@ -60,17 +111,21 @@
   letter-spacing: 0.03em;
 }
 
-.app-content {
-  display: block;
+// --- Content ---
+.content-wrap {
+  background: var(--abb-gray-100);
+  display: flex;
+  flex-direction: column;
 }
 
-// Mobile: keep only the brand mark + user menu; clamp the username.
+.app-content {
+  flex: 1;
+}
+
 @media (max-width: 600px) {
-  .app-bar-title,
   .app-bar-role {
     display: none;
   }
-
   .app-bar-username {
     max-width: 7.5rem;
     overflow: hidden;

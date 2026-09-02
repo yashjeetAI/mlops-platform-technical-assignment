@@ -1,25 +1,67 @@
 @if (auth.isAuthenticated()) {
-  <mat-toolbar class="app-bar">
-    <a routerLink="/" class="app-bar-brand">
-      <span class="app-bar-mark">ABB</span>
-      <span class="app-bar-title">MLOps Platform</span>
-    </a>
-    <span class="app-bar-spacer"></span>
+  <mat-sidenav-container class="shell">
+    <mat-sidenav
+      class="sidenav"
+      [mode]="isHandset() ? 'over' : 'side'"
+      [opened]="isHandset() ? sidenavOpen() : true"
+      (closedStart)="sidenavOpen.set(false)"
+    >
+      <a routerLink="/" class="side-brand" (click)="closeOnHandset()">
+        <span class="brand-mark">ABB</span>
+        <span class="brand-app">MLOps</span>
+      </a>
 
-    <button mat-button [matMenuTriggerFor]="menu" class="app-bar-user">
-      <mat-icon>account_circle</mat-icon>
-      <span class="app-bar-username">{{ auth.currentUser()?.username }}</span>
-      <span class="app-bar-role">{{ auth.currentUser()?.role }}</span>
-    </button>
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item (click)="logout()">
-        <mat-icon>logout</mat-icon>
-        <span>Sign out</span>
-      </button>
-    </mat-menu>
-  </mat-toolbar>
-}
+      <mat-nav-list class="nav">
+        @for (item of nav; track item.label) {
+          @if (item.soon) {
+            <a mat-list-item class="nav-soon" matTooltip="Coming soon" matTooltipPosition="right">
+              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+              <span matListItemTitle>{{ item.label }}</span>
+            </a>
+          } @else {
+            <a
+              mat-list-item
+              [routerLink]="item.route"
+              routerLinkActive="active-link"
+              [routerLinkActiveOptions]="{ exact: !!item.exact }"
+              (click)="closeOnHandset()"
+            >
+              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+              <span matListItemTitle>{{ item.label }}</span>
+            </a>
+          }
+        }
+      </mat-nav-list>
+    </mat-sidenav>
 
-<main class="app-content">
+    <mat-sidenav-content class="content-wrap">
+      <mat-toolbar class="app-bar">
+        @if (isHandset()) {
+          <button mat-icon-button (click)="toggleSidenav()" aria-label="Toggle navigation">
+            <mat-icon>menu</mat-icon>
+          </button>
+        }
+        <span class="app-bar-title">MLOps Platform</span>
+        <span class="app-bar-spacer"></span>
+
+        <button mat-button [matMenuTriggerFor]="menu" class="app-bar-user">
+          <mat-icon>account_circle</mat-icon>
+          <span class="app-bar-username">{{ auth.currentUser()?.username }}</span>
+          <span class="app-bar-role">{{ auth.currentUser()?.role }}</span>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Sign out</span>
+          </button>
+        </mat-menu>
+      </mat-toolbar>
+
+      <main class="app-content">
+        <router-outlet />
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+} @else {
   <router-outlet />
-</main>
+}
