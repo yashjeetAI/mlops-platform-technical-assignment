@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from app.api.middleware import CorrelationIdMiddleware
-from app.api.routes import auth, deployments, health, models
+from app.api.routes import auth, deployments, health, models, monitoring
 from app.core.config import get_settings
 from app.core.exceptions import (
     ApprovalRequired,
@@ -17,6 +17,7 @@ from app.core.exceptions import (
 from app.core.logging import configure_logging, get_logger
 from app.db.migrations import upgrade_to_head
 from app.db.seed import seed_demo_users
+from app.db.seed_sample import seed_sample_data
 from app.db.session import SessionLocal
 
 configure_logging()
@@ -31,7 +32,13 @@ async def lifespan(_: FastAPI):
     upgrade_to_head()
     with SessionLocal() as db:
         created = seed_demo_users(db)
-    logger.info("startup_complete", demo_users_created=created, environment=settings.environment)
+        sample = seed_sample_data(db)  # only seeds an empty registry
+    logger.info(
+        "startup_complete",
+        demo_users_created=created,
+        sample_seeded=sample,
+        environment=settings.environment,
+    )
     yield
 
 
@@ -48,6 +55,7 @@ app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(models.router)
 app.include_router(deployments.router)
+app.include_router(monitoring.router)
 
 
 # Map domain errors to consistent HTTP responses (keeps services HTTP-agnostic).

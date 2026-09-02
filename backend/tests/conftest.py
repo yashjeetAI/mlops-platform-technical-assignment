@@ -11,6 +11,7 @@ from app.main import app
 
 # Import all models so metadata is fully populated.
 from app.models import deployment as _deployment  # noqa: F401
+from app.models import metric as _metric  # noqa: F401
 from app.models import model as _model  # noqa: F401
 from app.models import user as _user  # noqa: F401
 

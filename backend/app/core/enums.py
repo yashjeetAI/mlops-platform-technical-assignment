@@ -56,6 +56,14 @@ class Environment(StrEnum):
     PRODUCTION = "PRODUCTION"
 
 
+class MonitoringStatus(StrEnum):
+    """Health rollup derived from the latest metric sample."""
+
+    HEALTHY = "HEALTHY"
+    DEGRADED = "DEGRADED"
+    NO_DATA = "NO_DATA"
+
+
 class DeploymentStatus(StrEnum):
     """Deployment execution states, driven by the async worker.
 

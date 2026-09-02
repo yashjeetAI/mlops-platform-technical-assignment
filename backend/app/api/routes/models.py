@@ -18,7 +18,8 @@ from app.schemas.model import (
     ModelVersionResponse,
     StageChangeRequest,
 )
-from app.services import model_service
+from app.schemas.monitoring import MonitoringSummary
+from app.services import metric_service, model_service
 
 router = APIRouter(prefix="/models", tags=["models"])
 
@@ -51,6 +52,15 @@ def get_model(
     _: User = Depends(get_current_user),
 ):
     return model_service.get_model(db, model_id)
+
+
+@router.get("/{model_id}/metrics", response_model=MonitoringSummary)
+def get_model_metrics(
+    model_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    return metric_service.get_model_metrics(db, model_id)
 
 
 @router.post(

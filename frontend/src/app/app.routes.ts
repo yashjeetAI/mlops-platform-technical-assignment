@@ -29,5 +29,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/deployments/deployment-list').then((m) => m.DeploymentList),
   },
+  {
+    path: 'monitoring',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/monitoring/monitoring-dashboard').then((m) => m.MonitoringDashboard),
+  },
   { path: '**', redirectTo: '' },
 ];
