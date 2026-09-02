@@ -1,0 +1,133 @@
+.page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.page-head h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.page-head p {
+  margin: 0;
+  color: var(--abb-gray-700);
+}
+
+.search {
+  width: 100%;
+  max-width: 420px;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  color: var(--abb-gray-700);
+  text-align: center;
+}
+
+.state-error {
+  color: var(--abb-red);
+}
+
+.state-empty mat-icon,
+.state mat-icon {
+  font-size: 2rem;
+  height: 2rem;
+  width: 2rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.model-card {
+  padding: 1.1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.model-card:hover,
+.model-card:focus-visible {
+  border-color: var(--abb-red);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  outline: none;
+}
+
+.model-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.model-top h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.model-key {
+  font-size: 0.72rem;
+  color: var(--abb-gray-500);
+  background: var(--abb-gray-100);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.model-meta {
+  display: flex;
+  gap: 1.5rem;
+  margin: 0.9rem 0 0.6rem;
+}
+
+.model-meta dt {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--abb-gray-500);
+}
+
+.model-meta dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.9rem;
+}
+
+.model-cta {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--abb-red);
+}
+
+.model-cta mat-icon {
+  font-size: 1rem;
+  height: 1rem;
+  width: 1rem;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 1.25rem 1rem;
+  }
+  .page-head {
+    flex-direction: column;
+  }
+}

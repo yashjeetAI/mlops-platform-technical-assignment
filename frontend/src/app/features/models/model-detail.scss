@@ -1,0 +1,161 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 2.5rem;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--abb-gray-700);
+  text-decoration: none;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.back:hover {
+  color: var(--abb-red);
+}
+
+.back mat-icon {
+  font-size: 1.1rem;
+  height: 1.1rem;
+  width: 1.1rem;
+}
+
+.detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.detail-head h1 {
+  margin: 0 0 0.3rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.model-key {
+  font-size: 0.75rem;
+  color: var(--abb-gray-500);
+  background: var(--abb-gray-100);
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+}
+
+.meta {
+  display: flex;
+  gap: 2rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.meta dt {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--abb-gray-500);
+}
+
+.meta dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.95rem;
+}
+
+.section {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 1.75rem 0 0.75rem;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 1rem;
+  color: var(--abb-gray-700);
+}
+
+.state-error {
+  color: var(--abb-red);
+}
+
+.versions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.version {
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+}
+
+.version-main {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.version-num {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.approved {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: #2e7d32;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.approved mat-icon {
+  font-size: 0.95rem;
+  height: 0.95rem;
+  width: 0.95rem;
+}
+
+.version-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.6rem 0;
+  font-size: 0.82rem;
+  color: var(--abb-gray-700);
+}
+
+.version-info code {
+  background: var(--abb-gray-100);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.78rem;
+}
+
+.version-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.version-actions mat-icon {
+  font-size: 1.1rem;
+  height: 1.1rem;
+  width: 1.1rem;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 1rem;
+  }
+  .detail-head {
+    flex-direction: column;
+  }
+  .meta {
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+}

@@ -48,6 +48,18 @@
   opacity: 0.55;
 }
 
+.cap-link {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.cap-link:hover {
+  border-color: var(--abb-red);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
 .cap-icon {
   display: grid;
   place-items: center;
