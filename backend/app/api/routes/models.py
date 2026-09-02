@@ -13,6 +13,7 @@ from app.schemas.model import (
     ModelPage,
     ModelResponse,
     ModelVersionCreate,
+    ModelVersionEventPage,
     ModelVersionPage,
     ModelVersionResponse,
     StageChangeRequest,
@@ -100,6 +101,22 @@ def promote_version(
     version_id: uuid.UUID,
     payload: StageChangeRequest,
     db: Session = Depends(get_db),
-    _: User = Depends(require_roles(Role.APPROVER)),
+    user: User = Depends(require_roles(Role.APPROVER)),
 ):
-    return model_service.transition_version(db, version_id, payload.target_stage)
+    return model_service.transition_version(db, user.id, version_id, payload.target_stage)
+
+
+@router.get(
+    "/{model_id}/versions/{version_id}/events",
+    response_model=ModelVersionEventPage,
+)
+def list_version_events(
+    model_id: uuid.UUID,
+    version_id: uuid.UUID,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    items, total = model_service.list_version_events(db, version_id, limit=limit, offset=offset)
+    return ModelVersionEventPage(items=items, total=total, limit=limit, offset=offset)

@@ -10,11 +10,12 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.enums import DeploymentStatus, Environment
-from app.core.exceptions import ApprovalRequired, ConflictError, NotFoundError
+from app.core.exceptions import ConflictError, NotFoundError
 from app.core.logging import get_logger
 from app.models.deployment import Deployment
 from app.models.model import ModelVersion
 from app.schemas.deployment import DeploymentCreate
+from app.services.deployment_policy import is_deployable
 from app.worker import queue
 
 logger = get_logger("deployments")
@@ -44,10 +45,10 @@ def list_deployments(
 
 
 def _assert_deployable(version: ModelVersion, environment: Environment) -> None:
-    """Governance gate: Production requires an approved version."""
-    if environment == Environment.PRODUCTION and not version.approved:
-        raise ApprovalRequired(
-            "Version must be approved before deploying to Production"
+    """Governance gate: the version's lifecycle stage must allow this environment."""
+    if not is_deployable(version.stage, environment):
+        raise ConflictError(
+            f"A {version.stage.value} version cannot be deployed to {environment.value}"
         )
 
 

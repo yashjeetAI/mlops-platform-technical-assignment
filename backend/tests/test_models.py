@@ -205,6 +205,28 @@ def test_get_unknown_model_404(client):
     assert resp.status_code == 404
 
 
+def test_version_lifecycle_events_recorded(client):
+    eng = auth_header(client, "engineer")
+    appr = auth_header(client, "approver")
+    model_id = _create_model(client, eng)
+    vid = _create_version(client, eng, model_id, "1.0.0")
+    base = f"/models/{model_id}/versions/{vid}"
+    client.post(f"{base}/promote", json={"targetStage": "VALIDATED"}, headers=appr)
+    client.post(f"{base}/approve", headers=appr)
+    client.post(f"{base}/promote", json={"targetStage": "STAGING"}, headers=appr)
+
+    events = client.get(f"{base}/events", headers=eng).json()
+    assert events["total"] == 4
+    # chronological, meaningful names
+    assert [e["event"] for e in events["items"]] == ["created", "validated", "approved", "promoted"]
+    created = events["items"][0]
+    assert created["fromStage"] is None and created["toStage"] == "DRAFT"
+    assert created["actor"] == "engineer"  # who created it
+    approved = next(e for e in events["items"] if e["event"] == "approved")
+    assert approved["fromStage"] == "VALIDATED" and approved["toStage"] == "APPROVED"
+    assert approved["actor"] == "approver"  # who approved it
+
+
 def test_create_version_under_unknown_model_404(client):
     resp = client.post(
         f"/models/{uuid.uuid4()}/versions", json=VERSION, headers=auth_header(client, "engineer")

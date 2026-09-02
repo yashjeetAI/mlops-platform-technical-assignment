@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -10,8 +11,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AuthService } from '../../core/auth.service';
 import { Role } from '../../core/models';
@@ -21,6 +24,7 @@ import {
   LifecycleStage,
   ModelSummary,
   ModelVersion,
+  ModelVersionEvent,
   PROMOTE_TARGETS,
   stageClass,
 } from '../../core/registry.models';
@@ -29,6 +33,7 @@ import { VersionFormDialog } from './version-form-dialog';
 @Component({
   selector: 'app-model-detail',
   imports: [
+    DatePipe,
     RouterLink,
     MatCardModule,
     MatButtonModule,
@@ -38,6 +43,8 @@ import { VersionFormDialog } from './version-form-dialog';
     MatDialogModule,
     MatTableModule,
     MatPaginatorModule,
+    MatSidenavModule,
+    MatTooltipModule,
   ],
   templateUrl: './model-detail.html',
   styleUrl: './model-detail.scss',
@@ -71,8 +78,26 @@ export class ModelDetail {
 
   readonly stageClass = stageClass;
 
+  // Lifecycle-history drawer.
+  readonly historyVersion = signal<ModelVersion | null>(null);
+  readonly historyEvents = signal<ModelVersionEvent[]>([]);
+  readonly drawerOpen = signal(false);
+
   constructor() {
     this.load();
+  }
+
+  openHistory(version: ModelVersion): void {
+    this.historyVersion.set(version);
+    this.historyEvents.set([]);
+    this.drawerOpen.set(true);
+    this.registry
+      .listVersionEvents(this.modelId, version.id, { limit: 100, offset: 0 })
+      .subscribe((page) => this.historyEvents.set(page.items));
+  }
+
+  closeDrawer(): void {
+    this.drawerOpen.set(false);
   }
 
   load(): void {
@@ -156,6 +181,13 @@ export class ModelDetail {
   private afterAction(message: string): void {
     this.snack.open(message, 'Dismiss', { duration: 3000 });
     this.loadVersions();
+    // Refresh the open history drawer so the new transition shows up.
+    const v = this.historyVersion();
+    if (this.drawerOpen() && v) {
+      this.registry
+        .listVersionEvents(this.modelId, v.id, { limit: 100, offset: 0 })
+        .subscribe((page) => this.historyEvents.set(page.items));
+    }
   }
 
   private fail(err: unknown): void {

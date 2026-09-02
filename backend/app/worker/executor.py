@@ -10,10 +10,11 @@ from collections.abc import Callable
 import structlog
 from sqlalchemy.orm import Session
 
-from app.core.enums import DeploymentStatus, Environment
+from app.core.enums import DeploymentStatus
 from app.core.logging import get_logger
 from app.models.deployment import Deployment
 from app.models.model import ModelVersion
+from app.services.deployment_policy import is_deployable
 from app.worker import queue
 
 logger = get_logger("worker")
@@ -45,8 +46,8 @@ def process_deployment(
         db.commit()
 
         version = db.get(ModelVersion, deployment.model_version_id)
-        deployable = version is not None and not (
-            deployment.environment == Environment.PRODUCTION and not version.approved
+        deployable = version is not None and is_deployable(
+            version.stage, deployment.environment
         )
         if not deployable:
             _fail(db, deployment, "approval_validation_failed", "version not deployable")
