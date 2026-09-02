@@ -25,7 +25,7 @@ import { CreateModel, FRAMEWORKS } from '../../core/registry.models';
         <mat-form-field appearance="outline">
           <mat-label>Name</mat-label>
           <input matInput formControlName="name" placeholder="Pump Failure Predictor" />
-          <mat-hint>Slug is auto-generated.</mat-hint>
+          <mat-hint><span class="abb-hint">Slug is auto-generated.</span></mat-hint>
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Owner</mat-label>
@@ -53,11 +53,16 @@ import { CreateModel, FRAMEWORKS } from '../../core/registry.models';
       .dialog-body {
         display: flex;
         flex-direction: column;
-        min-width: 360px;
-        padding-top: 0.5rem;
+        gap: 0.4rem;
+        width: 26rem;
+        max-width: 80vw;
+        padding-top: 0.75rem;
       }
       mat-form-field {
         width: 100%;
+      }
+      .abb-hint {
+        color: var(--abb-red);
       }
     `,
   ],
