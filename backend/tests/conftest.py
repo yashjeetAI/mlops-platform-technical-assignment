@@ -47,8 +47,13 @@ def client(db_session):
             session.close()
 
     app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as c:
-        yield c
+    # NB: construct TestClient WITHOUT the context manager on purpose. The `with`
+    # form runs the app lifespan, which applies Alembic migrations + seeds against
+    # Postgres — coupling the "SQLite unit tests" to a live Postgres and causing
+    # flakiness. Tests build their schema on SQLite via the db_session fixture, so
+    # the production startup is neither needed nor wanted here.
+    client = TestClient(app)
+    yield client
     app.dependency_overrides.clear()
 
 
