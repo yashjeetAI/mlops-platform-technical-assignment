@@ -6,6 +6,7 @@ with FOR UPDATE SKIP LOCKED, advances the status, and records a DeploymentEvent 
 """
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Boolean,
@@ -23,6 +24,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.enums import DeploymentStatus, Environment
 from app.db.session import Base
 from app.models.mixins import TimestampMixin, UUIDPrimaryKeyMixin
+
+if TYPE_CHECKING:
+    from app.models.model import Model, ModelVersion
 
 # In-flight states: at most one active deployment per (model, environment).
 _IN_FLIGHT_SQL = "status IN ('REQUESTED', 'VALIDATING', 'DEPLOYING')"
@@ -85,15 +89,15 @@ class Deployment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         Uuid(as_uuid=True), ForeignKey("users.id"), nullable=True
     )
 
-    events: Mapped[list["DeploymentEvent"]] = relationship(
+    events: Mapped[list[DeploymentEvent]] = relationship(
         back_populates="deployment",
         cascade="all, delete-orphan",
         order_by="DeploymentEvent.created_at",
     )
 
     # Read-only relationships for display (model name + version string).
-    model: Mapped["Model"] = relationship("Model", lazy="selectin", viewonly=True)
-    model_version: Mapped["ModelVersion"] = relationship(
+    model: Mapped[Model] = relationship("Model", lazy="selectin", viewonly=True)
+    model_version: Mapped[ModelVersion] = relationship(
         "ModelVersion", lazy="selectin", viewonly=True
     )
 
@@ -122,4 +126,4 @@ class DeploymentEvent(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     actor: Mapped[str | None] = mapped_column(String(64), nullable=True)
     correlation_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
-    deployment: Mapped["Deployment"] = relationship(back_populates="events")
+    deployment: Mapped[Deployment] = relationship(back_populates="events")

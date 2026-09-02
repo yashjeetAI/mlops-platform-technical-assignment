@@ -59,9 +59,7 @@ export class DeploymentFormDialog {
   readonly filteredVersions = computed<ModelVersion[]>(() => {
     const q = this.versionQuery().toLowerCase();
     const list = this.versions();
-    return q
-      ? list.filter((v) => `v${v.version} ${v.stage}`.toLowerCase().includes(q))
-      : list;
+    return q ? list.filter((v) => `v${v.version} ${v.stage}`.toLowerCase().includes(q)) : list;
   });
 
   readonly form = this.fb.nonNullable.group({

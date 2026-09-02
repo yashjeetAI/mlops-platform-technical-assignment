@@ -7,7 +7,6 @@ from pydantic import Field
 from app.core.enums import Framework, LifecycleStage
 from app.schemas.base import CamelModel
 
-
 # --- requests ---
 
 class ModelCreate(CamelModel):

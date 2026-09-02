@@ -15,11 +15,7 @@ export enum Environment {
   PRODUCTION = 'PRODUCTION',
 }
 
-export const ENVIRONMENTS = [
-  Environment.DEVELOPMENT,
-  Environment.STAGING,
-  Environment.PRODUCTION,
-];
+export const ENVIRONMENTS = [Environment.DEVELOPMENT, Environment.STAGING, Environment.PRODUCTION];
 
 /** States where the worker is still acting — used to decide whether to poll. */
 export const IN_FLIGHT: DeploymentStatus[] = [

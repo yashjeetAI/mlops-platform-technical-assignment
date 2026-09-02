@@ -113,4 +113,3 @@ export const PROMOTE_TARGETS: Record<LifecycleStage, LifecycleStage[]> = {
 export function stageClass(stage: LifecycleStage): string {
   return `stage-chip stage-${stage.toLowerCase()}`;
 }
-

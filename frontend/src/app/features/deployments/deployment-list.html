@@ -45,9 +45,14 @@
                 <span class="tl-event">{{ e.event }}</span>
                 <span [class]="statusClass(e.status)">{{ e.status }}</span>
               </div>
-              @if (e.message) { <div class="tl-msg">{{ e.message }}</div> }
+              @if (e.message) {
+                <div class="tl-msg">{{ e.message }}</div>
+              }
               <div class="tl-meta">
-                {{ e.createdAt | date: 'medium' }}@if (e.actor) { · {{ e.actor }} }
+                {{ e.createdAt | date: 'medium' }}
+                @if (e.actor) {
+                  · {{ e.actor }}
+                }
               </div>
             </div>
           </li>
@@ -75,7 +80,11 @@
       <mat-form-field appearance="outline" class="search">
         <mat-icon matPrefix>search</mat-icon>
         <mat-label>Search deployments</mat-label>
-        <input matInput (input)="onSearch($any($event.target).value)" placeholder="model, version, environment, status" />
+        <input
+          matInput
+          (input)="onSearch($any($event.target).value)"
+          placeholder="model, version, environment, status"
+        />
       </mat-form-field>
 
       @if (loading()) {
@@ -108,7 +117,9 @@
           <table mat-table [dataSource]="deployments()" class="dep-table">
             <ng-container matColumnDef="model">
               <th mat-header-cell *matHeaderCellDef>Model version</th>
-              <td mat-cell *matCellDef="let d" class="cell-model">{{ d.modelKey }} · v{{ d.version }}</td>
+              <td mat-cell *matCellDef="let d" class="cell-model">
+                {{ d.modelKey }} · v{{ d.version }}
+              </td>
             </ng-container>
             <ng-container matColumnDef="environment">
               <th mat-header-cell *matHeaderCellDef>Environment</th>
@@ -116,7 +127,9 @@
             </ng-container>
             <ng-container matColumnDef="status">
               <th mat-header-cell *matHeaderCellDef>Status</th>
-              <td mat-cell *matCellDef="let d"><span [class]="statusClass(d.status)">{{ d.status }}</span></td>
+              <td mat-cell *matCellDef="let d">
+                <span [class]="statusClass(d.status)">{{ d.status }}</span>
+              </td>
             </ng-container>
             <ng-container matColumnDef="attempts">
               <th mat-header-cell *matHeaderCellDef>Attempts</th>
@@ -128,11 +141,18 @@
             </ng-container>
             <ng-container matColumnDef="action">
               <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef="let d" class="cell-action"><mat-icon>chevron_right</mat-icon></td>
+              <td mat-cell *matCellDef="let d" class="cell-action">
+                <mat-icon>chevron_right</mat-icon>
+              </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="columns"></tr>
-            <tr mat-row *matRowDef="let row; columns: columns" class="dep-row" (click)="openDetail(row)"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: columns"
+              class="dep-row"
+              (click)="openDetail(row)"
+            ></tr>
           </table>
         </div>
       }

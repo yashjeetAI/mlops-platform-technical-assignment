@@ -18,8 +18,9 @@ def test_sample_seeder_loads_coherent_data(client, db_session):
     assert counts["deployments"] >= 3  # one per (version, env) with metrics + a failed one
     assert counts["metrics"] > 0
     # every metric is linked to the deployment that produced it
-    from app.models.metric import Metric
     from sqlalchemy import func, select
+
+    from app.models.metric import Metric
     orphans = db.execute(
         select(func.count()).select_from(Metric).where(Metric.deployment_id.is_(None))
     ).scalar_one()

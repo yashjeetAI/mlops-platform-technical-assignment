@@ -1,8 +1,9 @@
 """Programmatic Alembic runner used at application startup."""
 from pathlib import Path
 
-from alembic import command
 from alembic.config import Config
+
+from alembic import command
 
 # backend/ (contains alembic.ini and the alembic/ directory)
 BACKEND_DIR = Path(__file__).resolve().parents[2]

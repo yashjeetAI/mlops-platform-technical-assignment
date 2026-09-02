@@ -1,5 +1,5 @@
 """Password hashing and JWT token helpers."""
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import bcrypt
 import jwt
@@ -22,7 +22,7 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 def create_access_token(subject: str, role: str) -> str:
     """Issue a signed JWT for the given username/role."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     payload = {
         "sub": subject,
         "role": role,
