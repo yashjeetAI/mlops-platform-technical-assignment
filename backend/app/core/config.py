@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     jwt_expiry_minutes: int = 480
     # Password for all seeded demo users (demo convenience only).
     demo_password: str = "demo1234"
+    # Directory holding sample seed data (models.json, metrics.csv). In Docker
+    # the repo-root data/ folder is mounted and this is set via SEED_DATA_DIR;
+    # locally it defaults to the repo-root data/ directory.
+    seed_data_dir: str | None = None
 
 
 @lru_cache

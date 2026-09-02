@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -13,7 +13,19 @@ export class MonitoringService {
     return this.http.get<MonitoringOverview>(`${API_BASE_URL}/monitoring`);
   }
 
-  modelMetrics(modelId: string): Observable<MonitoringSummary> {
-    return this.http.get<MonitoringSummary>(`${API_BASE_URL}/models/${modelId}/metrics`);
+  modelMetrics(
+    modelId: string,
+    opts?: { version?: string; environment?: string },
+  ): Observable<MonitoringSummary> {
+    let params = new HttpParams();
+    if (opts?.version) {
+      params = params.set('version', opts.version);
+    }
+    if (opts?.environment) {
+      params = params.set('environment', opts.environment);
+    }
+    return this.http.get<MonitoringSummary>(`${API_BASE_URL}/models/${modelId}/metrics`, {
+      params,
+    });
   }
 }

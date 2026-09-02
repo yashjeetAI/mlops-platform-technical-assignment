@@ -16,14 +16,22 @@ export interface MetricPoint {
   availability: number;
 }
 
+export interface SeriesRef {
+  version: string;
+  environment: string;
+}
+
 export interface MonitoringSummary {
   modelId: string;
   modelKey: string;
   name: string;
   monitoringStatus: MonitoringStatus;
   lastInferenceAt: string | null;
+  version: string | null;
+  environment: string | null;
   latest: MetricPoint | null;
   series: MetricPoint[];
+  available: SeriesRef[];
 }
 
 export interface MonitoringOverviewItem {

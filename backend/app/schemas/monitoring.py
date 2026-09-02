@@ -20,14 +20,24 @@ class MetricPoint(CamelModel):
     availability: float
 
 
+class SeriesRef(CamelModel):
+    version: str
+    environment: Environment
+
+
 class MonitoringSummary(CamelModel):
     model_id: UUID
     model_key: str
     name: str
     monitoring_status: MonitoringStatus
     last_inference_at: datetime | None
+    # The (version, environment) this summary is scoped to.
+    version: str | None
+    environment: Environment | None
     latest: MetricPoint | None
     series: list[MetricPoint] = Field(default_factory=list)
+    # All (version, environment) combinations that have metrics.
+    available: list[SeriesRef] = Field(default_factory=list)
 
 
 class MonitoringOverviewItem(CamelModel):

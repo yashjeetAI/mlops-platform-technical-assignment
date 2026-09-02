@@ -1,8 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 
 import { apiErrorMessage } from '../../core/registry.service';
 import { MonitoringService } from '../../core/monitoring.service';
@@ -10,6 +12,7 @@ import {
   MonitoringOverviewItem,
   MonitoringSummary,
   monitoringStatusClass,
+  SeriesRef,
 } from '../../core/monitoring.models';
 
 interface MetricCard {
@@ -21,7 +24,14 @@ interface MetricCard {
 
 @Component({
   selector: 'app-monitoring-dashboard',
-  imports: [DatePipe, MatCardModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [
+    DatePipe,
+    MatCardModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './monitoring-dashboard.html',
   styleUrl: './monitoring-dashboard.scss',
 })
@@ -82,6 +92,25 @@ export class MonitoringDashboard {
     this.selectedId.set(item.modelId);
     this.selected.set(null);
     this.svc.modelMetrics(item.modelId).subscribe((s) => this.selected.set(s));
+  }
+
+  /** A stable value for a (version, environment) combo, for the selector. */
+  refKey(ref: SeriesRef): string {
+    return `${ref.version}|${ref.environment}`;
+  }
+
+  currentKey(): string {
+    const s = this.selected();
+    return s?.version && s?.environment ? `${s.version}|${s.environment}` : '';
+  }
+
+  changeCombo(key: string): void {
+    const id = this.selectedId();
+    if (!id) {
+      return;
+    }
+    const [version, environment] = key.split('|');
+    this.svc.modelMetrics(id, { version, environment }).subscribe((s) => this.selected.set(s));
   }
 
   /** Build an SVG polyline for a metric's recent series, normalised to 100x28. */

@@ -54,6 +54,16 @@
         @if (s.lastInferenceAt) {
           <span class="last-inf">last inference {{ s.lastInferenceAt | date: 'medium' }}</span>
         }
+        @if (s.available.length > 0) {
+          <mat-form-field appearance="outline" class="combo" subscriptSizing="dynamic">
+            <mat-label>Version · environment</mat-label>
+            <mat-select [value]="currentKey()" (selectionChange)="changeCombo($event.value)">
+              @for (ref of s.available; track refKey(ref)) {
+                <mat-option [value]="refKey(ref)">v{{ ref.version }} · {{ ref.environment }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
       </div>
 
       @if (metricCards().length === 0) {

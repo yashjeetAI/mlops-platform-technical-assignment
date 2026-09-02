@@ -12,6 +12,7 @@ from pathlib import Path
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.core.config import get_settings
 from app.core.enums import Environment, LifecycleStage
 from app.core.logging import get_logger
 from app.models.metric import Metric
@@ -20,7 +21,14 @@ from app.models.model import Model, ModelVersion
 
 logger = get_logger("seed")
 
-DATA_DIR = Path(__file__).resolve().parents[1] / "seed_data"
+
+def _data_dir() -> Path:
+    """Resolve the sample-data directory (env/setting override, else repo-root data/)."""
+    configured = get_settings().seed_data_dir
+    if configured:
+        return Path(configured)
+    # backend/app/db/seed_sample.py -> repo root -> data/
+    return Path(__file__).resolve().parents[3] / "data"
 
 
 def seed_sample_data(db: Session) -> dict[str, int]:
@@ -31,7 +39,8 @@ def seed_sample_data(db: Session) -> dict[str, int]:
     models_by_key: dict[str, Model] = {}
     versions_by_key: dict[tuple[str, str], ModelVersion] = {}
 
-    registry = json.loads((DATA_DIR / "models.json").read_text())
+    data_dir = _data_dir()
+    registry = json.loads((data_dir / "models.json").read_text())
     models = versions = 0
     for spec in registry:
         model = Model(
@@ -60,7 +69,7 @@ def seed_sample_data(db: Session) -> dict[str, int]:
             versions += 1
 
     metrics = 0
-    with (DATA_DIR / "metrics.csv").open() as f:
+    with (data_dir / "metrics.csv").open() as f:
         for row in csv.DictReader(f):
             model = models_by_key.get(row["model_id"])
             if model is None:

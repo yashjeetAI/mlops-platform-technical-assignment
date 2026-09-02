@@ -17,6 +17,9 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://mlops:mlops@db:5432/mlops
       ENVIRONMENT: docker
+      SEED_DATA_DIR: /data
+    volumes:
+      - ./data:/data:ro
     ports: ["8000:8000"]
     depends_on:
       db:

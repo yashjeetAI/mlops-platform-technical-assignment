@@ -43,6 +43,28 @@ def test_model_metrics_summary(client, db_session):
     assert "latencyMs" in body["latest"]
     assert "errorRate" in body["latest"]
     assert len(body["series"]) > 0
+    # scoped to a (version, environment), with the available combos listed
+    assert body["version"] is not None
+    assert body["environment"] is not None
+    assert len(body["available"]) >= 1
+
+
+def test_model_metrics_scoped_to_version(client, db_session):
+    _seed(db_session)
+    models = client.get("/models", headers=auth_header(client, "viewer")).json()["items"]
+    model_id = models[0]["id"]
+    hdr = auth_header(client, "viewer")
+    available = client.get(f"/models/{model_id}/metrics", headers=hdr).json()["available"]
+    # pick a specific version+environment and confirm the series is scoped to it
+    ref = available[0]
+    body = client.get(
+        f"/models/{model_id}/metrics",
+        params={"version": ref["version"], "environment": ref["environment"]},
+        headers=hdr,
+    ).json()
+    assert body["version"] == ref["version"]
+    assert all(p["version"] == ref["version"] for p in body["series"])
+    assert all(p["environment"] == ref["environment"] for p in body["series"])
 
 
 def test_metrics_unknown_model_404(client):
