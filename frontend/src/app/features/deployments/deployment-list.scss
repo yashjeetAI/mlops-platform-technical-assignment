@@ -180,71 +180,7 @@
   font-weight: 700;
   margin: 1.25rem 0 0.75rem;
 }
-
-.timeline {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.tl-item {
-  position: relative;
-  padding: 0 0 1.1rem 1.5rem;
-  border-left: 2px solid var(--abb-gray-300);
-}
-
-.tl-item:last-child {
-  border-left-color: transparent;
-  padding-bottom: 0;
-}
-
-.tl-dot {
-  position: absolute;
-  left: -7px;
-  top: 2px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--abb-gray-500);
-  border: 2px solid #fff;
-}
-
-.dot-succeeded {
-  background: #2e7d32;
-}
-.dot-failed {
-  background: #c62828;
-}
-.dot-deploying,
-.dot-validating {
-  background: #b26a00;
-}
-.dot-rolled_back {
-  background: #6a1b9a;
-}
-
-.tl-top {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.tl-event {
-  font-weight: 600;
-  font-size: 0.88rem;
-}
-
-.tl-msg {
-  font-size: 0.8rem;
-  color: var(--abb-gray-700);
-  margin-top: 0.15rem;
-}
-
-.tl-meta {
-  font-size: 0.72rem;
-  color: var(--abb-gray-500);
-  margin-top: 0.2rem;
-}
+// Timeline styles are shared/global (see styles.scss).
 
 @media (max-width: 600px) {
   .page {

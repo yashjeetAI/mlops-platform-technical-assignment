@@ -30,72 +30,7 @@
   font-weight: 600;
 }
 
-.timeline {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.tl-item {
-  position: relative;
-  padding: 0 0 1.1rem 1.5rem;
-  border-left: 2px solid var(--abb-gray-300);
-}
-
-.tl-item:last-child {
-  border-left-color: transparent;
-  padding-bottom: 0;
-}
-
-.tl-dot {
-  position: absolute;
-  left: -7px;
-  top: 2px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--abb-gray-500);
-  border: 2px solid #fff;
-}
-
-.dot-validated {
-  background: #1565c0;
-}
-.dot-approved {
-  background: #2e7d32;
-}
-.dot-staging {
-  background: #b26a00;
-}
-.dot-production {
-  background: #00695c;
-}
-.dot-archived {
-  background: #9e9e9e;
-}
-
-.tl-top {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.tl-event {
-  font-weight: 600;
-  font-size: 0.88rem;
-}
-
-.tl-msg {
-  font-size: 0.78rem;
-  color: var(--abb-gray-700);
-  margin-top: 0.15rem;
-}
-
-.tl-meta {
-  font-size: 0.72rem;
-  color: var(--abb-gray-500);
-  margin-top: 0.2rem;
-}
+// Timeline styles are shared/global (see styles.scss).
 
 .back {
   display: inline-flex;
