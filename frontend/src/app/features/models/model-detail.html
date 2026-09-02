@@ -116,16 +116,21 @@
             <table mat-table [dataSource]="versions()" class="versions-table">
               <ng-container matColumnDef="version">
                 <th mat-header-cell *matHeaderCellDef>Version</th>
-                <td mat-cell *matCellDef="let v" class="cell-version">
-                  v{{ v.version }}
-                  @if (v.approved) {
-                    <mat-icon class="approved-icon" matTooltip="Approved">verified</mat-icon>
-                  }
-                </td>
+                <td mat-cell *matCellDef="let v" class="cell-version">v{{ v.version }}</td>
               </ng-container>
               <ng-container matColumnDef="stage">
                 <th mat-header-cell *matHeaderCellDef>Stage</th>
                 <td mat-cell *matCellDef="let v"><span [class]="stageClass(v.stage)">{{ v.stage }}</span></td>
+              </ng-container>
+              <ng-container matColumnDef="approved">
+                <th mat-header-cell *matHeaderCellDef>Approved</th>
+                <td mat-cell *matCellDef="let v">
+                  @if (v.approved) {
+                    <span class="approved-yes"><mat-icon>verified</mat-icon> Yes</span>
+                  } @else {
+                    <span class="approved-no">No</span>
+                  }
+                </td>
               </ng-container>
               <ng-container matColumnDef="artifact">
                 <th mat-header-cell *matHeaderCellDef>Artifact</th>

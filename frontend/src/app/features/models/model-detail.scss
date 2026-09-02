@@ -136,13 +136,24 @@
   white-space: nowrap;
 }
 
-.approved-icon {
+.approved-yes {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
   color: #2e7d32;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.approved-yes mat-icon {
   font-size: 1rem;
   height: 1rem;
   width: 1rem;
-  vertical-align: middle;
-  margin-left: 0.25rem;
+}
+
+.approved-no {
+  color: var(--abb-gray-500);
+  font-size: 0.85rem;
 }
 
 .artifact {

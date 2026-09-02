@@ -63,7 +63,7 @@ export class ModelDetail {
     this.breakpoints.observe(Breakpoints.Handset).pipe(map((r) => r.matches)),
     { initialValue: false },
   );
-  readonly columns = ['version', 'stage', 'artifact', 'algorithm', 'actions'];
+  readonly columns = ['version', 'stage', 'approved', 'artifact', 'algorithm', 'actions'];
 
   readonly model = signal<ModelSummary | null>(null);
   readonly versions = signal<ModelVersion[]>([]);
