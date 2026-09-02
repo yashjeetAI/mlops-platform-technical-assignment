@@ -9,8 +9,12 @@ import { MonitoringOverview, MonitoringSummary } from './monitoring.models';
 export class MonitoringService {
   private readonly http = inject(HttpClient);
 
-  overview(): Observable<MonitoringOverview> {
-    return this.http.get<MonitoringOverview>(`${API_BASE_URL}/monitoring`);
+  overview(opts: { limit: number; offset: number; q?: string }): Observable<MonitoringOverview> {
+    let params = new HttpParams().set('limit', opts.limit).set('offset', opts.offset);
+    if (opts.q) {
+      params = params.set('q', opts.q);
+    }
+    return this.http.get<MonitoringOverview>(`${API_BASE_URL}/monitoring`, { params });
   }
 
   modelMetrics(

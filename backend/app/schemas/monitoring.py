@@ -51,3 +51,6 @@ class MonitoringOverviewItem(CamelModel):
 
 class MonitoringOverview(CamelModel):
     items: list[MonitoringOverviewItem] = Field(default_factory=list)
+    total: int
+    limit: int
+    offset: int

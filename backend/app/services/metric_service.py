@@ -94,10 +94,16 @@ def get_model_metrics(
     }
 
 
-def list_monitoring(db: Session) -> list[dict]:
-    """Health overview across all models (latest sample + status each)."""
+def list_monitoring(
+    db: Session, *, limit: int = 20, offset: int = 0, q: str | None = None
+) -> tuple[list[dict], int]:
+    """Paginated health overview (latest sample + status per model on the page).
+
+    Only the page's models are scored, so this scales to thousands of models.
+    """
+    models, total = list_models(db, limit=limit, offset=offset, q=q)
     overview = []
-    for model in list_models(db, limit=1000)[0]:
+    for model in models:
         latest = _latest_metric(db, model.id)
         overview.append(
             {
@@ -109,4 +115,4 @@ def list_monitoring(db: Session) -> list[dict]:
                 "latest": latest,
             }
         )
-    return overview
+    return overview, total

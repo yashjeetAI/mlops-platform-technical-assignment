@@ -39,18 +39,28 @@ export class Home {
       title: 'Register models & versions',
       description: 'Create models and register new versions.',
       allowed: this.auth.hasRole(Role.ENGINEER),
+      route: '/models',
     },
     {
       icon: 'verified',
       title: 'Approve & promote',
       description: 'Approve versions and promote to Production.',
       allowed: this.auth.hasRole(Role.APPROVER),
+      route: '/models',
+    },
+    {
+      icon: 'rocket_launch',
+      title: 'Deploy & monitor',
+      description: 'Request deployments and track health.',
+      allowed: this.auth.hasRole(Role.VIEWER, Role.ENGINEER, Role.APPROVER),
+      route: '/deployments',
     },
     {
       icon: 'settings_backup_restore',
       title: 'Rollback deployments',
       description: 'Roll back a Production deployment.',
       allowed: this.auth.hasRole(Role.ADMIN),
+      route: '/deployments',
     },
   ]);
 }

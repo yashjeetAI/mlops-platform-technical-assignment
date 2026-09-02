@@ -86,6 +86,7 @@ def _make_deployment(db, model, version, environment, status, error=None, actor_
     dep = Deployment(
         model_id=model.id, model_version_id=version.id, environment=environment,
         status=status, error=error, created_by=actor_id,
+        attempts=1,  # these were executed once (a real run increments attempts on claim)
     )
     db.add(dep)
     db.flush()

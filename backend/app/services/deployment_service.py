@@ -5,7 +5,7 @@ then a best-effort NOTIFY wakes the worker; the poller is the safety net.
 """
 import uuid
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -13,7 +13,7 @@ from app.core.enums import DeploymentStatus, Environment
 from app.core.exceptions import ConflictError, NotFoundError
 from app.core.logging import get_logger
 from app.models.deployment import Deployment
-from app.models.model import ModelVersion
+from app.models.model import Model, ModelVersion
 from app.schemas.deployment import DeploymentCreate
 from app.services.deployment_policy import is_deployable
 from app.worker import queue
@@ -29,16 +29,37 @@ def get_deployment(db: Session, deployment_id: uuid.UUID) -> Deployment:
 
 
 def list_deployments(
-    db: Session, *, limit: int = 20, offset: int = 0
+    db: Session, *, limit: int = 20, offset: int = 0, q: str | None = None
 ) -> tuple[list[Deployment], int]:
-    """Return (page of deployments, total), newest first."""
-    total = db.execute(select(func.count()).select_from(Deployment)).scalar_one()
+    """Return (page of deployments, total), newest first.
+
+    `q` filters (case-insensitive) across model key/name, version, environment and status.
+    """
+    stmt = select(Deployment)
+    count_stmt = select(func.count()).select_from(Deployment)
+    if q:
+        pattern = f"%{q}%"
+        # Join model + version to search their human-readable fields.
+        stmt = stmt.join(Model, Deployment.model_id == Model.id).join(
+            ModelVersion, Deployment.model_version_id == ModelVersion.id
+        )
+        count_stmt = count_stmt.join(Model, Deployment.model_id == Model.id).join(
+            ModelVersion, Deployment.model_version_id == ModelVersion.id
+        )
+        cond = or_(
+            Model.key.ilike(pattern),
+            Model.name.ilike(pattern),
+            ModelVersion.version.ilike(pattern),
+            Deployment.environment.ilike(pattern),
+            Deployment.status.ilike(pattern),
+        )
+        stmt = stmt.where(cond)
+        count_stmt = count_stmt.where(cond)
+
+    total = db.execute(count_stmt).scalar_one()
     items = list(
         db.execute(
-            select(Deployment)
-            .order_by(Deployment.id.desc())  # newest first
-            .offset(offset)
-            .limit(limit)
+            stmt.order_by(Deployment.id.desc()).offset(offset).limit(limit)
         ).scalars()
     )
     return items, total

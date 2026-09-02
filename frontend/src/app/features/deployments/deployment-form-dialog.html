@@ -1,0 +1,82 @@
+<h2 mat-dialog-title>New deployment</h2>
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="dialog-body">
+    @if (data) {
+      <div class="prefilled">
+        Deploying <strong>{{ data.modelName }}</strong> · {{ data.versionLabel }}
+      </div>
+    } @else {
+      <mat-form-field appearance="outline">
+        <mat-label>Model</mat-label>
+        <mat-select
+          formControlName="modelId"
+          panelClass="search-select-panel"
+          (selectionChange)="onModelChange($event.value)"
+        >
+          <div class="select-search" (click)="$event.stopPropagation()">
+            <mat-icon>search</mat-icon>
+            <input
+              class="ss-input"
+              placeholder="Search models…"
+              (input)="searchModels($any($event.target).value)"
+              (keydown)="$event.stopPropagation()"
+            />
+          </div>
+          @for (m of modelOptions(); track m.id) {
+            <mat-option [value]="m.id">
+              <span class="opt-name">{{ m.name }}</span>
+              <span class="opt-sub">{{ m.key }}</span>
+            </mat-option>
+          } @empty {
+            <mat-option disabled>No models found</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Version</mat-label>
+        <mat-select
+          formControlName="modelVersionId"
+          panelClass="search-select-panel"
+          [disabled]="!form.value.modelId"
+        >
+          <div class="select-search" (click)="$event.stopPropagation()">
+            <mat-icon>search</mat-icon>
+            <input
+              class="ss-input"
+              placeholder="Search versions…"
+              (input)="onVersionSearch($any($event.target).value)"
+              (keydown)="$event.stopPropagation()"
+            />
+          </div>
+          @for (v of filteredVersions(); track v.id) {
+            <mat-option [value]="v.id">
+              <span class="opt-name">v{{ v.version }}</span>
+              <span class="opt-sub">{{ v.stage }}</span>
+            </mat-option>
+          } @empty {
+            <mat-option disabled>No versions</mat-option>
+          }
+        </mat-select>
+        @if (!form.value.modelId) {
+          <mat-hint>Select a model first.</mat-hint>
+        }
+      </mat-form-field>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>Environment</mat-label>
+      <mat-select formControlName="environment">
+        @for (e of environments; track e) {
+          <mat-option [value]="e">{{ e }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-checkbox formControlName="simulateFailure" class="sim">Simulate failure (demo)</mat-checkbox>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Cancel</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">Deploy</button>
+  </mat-dialog-actions>
+</form>

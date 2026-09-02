@@ -45,6 +45,9 @@ export interface MonitoringOverviewItem {
 
 export interface MonitoringOverview {
   items: MonitoringOverviewItem[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 /** CSS modifier class for a monitoring-status chip (styles in styles.scss). */

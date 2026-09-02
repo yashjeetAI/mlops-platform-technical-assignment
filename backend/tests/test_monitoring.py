@@ -37,12 +37,30 @@ def test_monitoring_overview(client, db_session):
     _seed(db_session)
     resp = client.get("/monitoring", headers=auth_header(client, "viewer"))
     assert resp.status_code == 200
-    items = resp.json()["items"]
+    body = resp.json()
+    assert body["total"] == 2
+    items = body["items"]
     assert len(items) == 2
     item = items[0]
     assert item["monitoringStatus"] in {"HEALTHY", "DEGRADED", "NO_DATA"}
     assert item["latest"] is not None
     assert item["lastInferenceAt"] is not None
+
+
+def test_monitoring_overview_search(client, db_session):
+    _seed(db_session)
+    resp = client.get("/monitoring?q=compressor", headers=auth_header(client, "viewer")).json()
+    assert resp["total"] == 1
+    assert "Compressor" in resp["items"][0]["name"]
+
+
+def test_deployments_search(client, db_session):
+    _seed(db_session)
+    hdr = auth_header(client, "viewer")
+    # seeded deployments include compressor + pump; filter to compressor
+    resp = client.get("/deployments?q=compressor", headers=hdr).json()
+    assert resp["total"] >= 1
+    assert all("compressor" in d["modelKey"] for d in resp["items"])
 
 
 def test_model_metrics_summary(client, db_session):

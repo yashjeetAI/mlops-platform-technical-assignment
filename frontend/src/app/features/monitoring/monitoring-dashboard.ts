@@ -1,8 +1,12 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 
@@ -29,6 +33,8 @@ interface MetricCard {
     MatCardModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatInputModule,
+    MatPaginatorModule,
     MatIconModule,
     MatProgressSpinnerModule,
   ],
@@ -39,11 +45,17 @@ export class MonitoringDashboard {
   private readonly svc = inject(MonitoringService);
 
   readonly items = signal<MonitoringOverviewItem[]>([]);
+  readonly total = signal(0);
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(12);
+  readonly search = signal('');
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 
   readonly selected = signal<MonitoringSummary | null>(null);
   readonly selectedId = signal<string | null>(null);
+
+  private readonly searchInput$ = new Subject<string>();
 
   readonly statusClass = monitoringStatusClass;
 
@@ -65,27 +77,53 @@ export class MonitoringDashboard {
   });
 
   constructor() {
+    this.searchInput$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((q) => {
+        this.search.set(q);
+        this.pageIndex.set(0);
+        this.load();
+      });
     this.load();
   }
 
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.svc.overview().subscribe({
-      next: (o) => {
-        this.items.set(o.items);
-        this.loading.set(false);
-        // auto-select the first model with data
-        const first = o.items.find((i) => i.latest) ?? o.items[0];
-        if (first) {
-          this.select(first);
-        }
-      },
-      error: (err) => {
-        this.error.set(apiErrorMessage(err, 'Failed to load monitoring.'));
-        this.loading.set(false);
-      },
-    });
+    this.svc
+      .overview({
+        limit: this.pageSize(),
+        offset: this.pageIndex() * this.pageSize(),
+        q: this.search() || undefined,
+      })
+      .subscribe({
+        next: (o) => {
+          this.items.set(o.items);
+          this.total.set(o.total);
+          this.loading.set(false);
+          // auto-select the first model with data on this page
+          const first = o.items.find((i) => i.latest) ?? o.items[0];
+          if (first) {
+            this.select(first);
+          } else {
+            this.selected.set(null);
+          }
+        },
+        error: (err) => {
+          this.error.set(apiErrorMessage(err, 'Failed to load monitoring.'));
+          this.loading.set(false);
+        },
+      });
+  }
+
+  onSearch(value: string): void {
+    this.searchInput$.next(value);
+  }
+
+  onPage(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    this.load();
   }
 
   select(item: MonitoringOverviewItem): void {

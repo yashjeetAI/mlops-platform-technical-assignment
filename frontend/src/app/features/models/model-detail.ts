@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { map } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +28,18 @@ import {
   PROMOTE_TARGETS,
   stageClass,
 } from '../../core/registry.models';
+import { DeploymentService } from '../../core/deployment.service';
+import { CreateDeployment } from '../../core/deployment.models';
 import { VersionFormDialog } from './version-form-dialog';
+import { DeploymentFormDialog } from '../deployments/deployment-form-dialog';
+
+// Stages a version can be deployed from (mirrors the backend deploy policy).
+const DEPLOYABLE_STAGES = new Set<LifecycleStage>([
+  LifecycleStage.VALIDATED,
+  LifecycleStage.APPROVED,
+  LifecycleStage.STAGING,
+  LifecycleStage.PRODUCTION,
+]);
 
 @Component({
   selector: 'app-model-detail',
@@ -51,7 +62,9 @@ import { VersionFormDialog } from './version-form-dialog';
 })
 export class ModelDetail {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly registry = inject(RegistryService);
+  private readonly deployments = inject(DeploymentService);
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly snack = inject(MatSnackBar);
@@ -75,6 +88,7 @@ export class ModelDetail {
 
   readonly canCreate = this.auth.hasRole(Role.ENGINEER);
   readonly canApprove = this.auth.hasRole(Role.APPROVER);
+  readonly canDeploy = this.auth.hasRole(Role.ENGINEER);
 
   readonly stageClass = stageClass;
 
@@ -146,6 +160,37 @@ export class ModelDetail {
 
   canApproveVersion(version: ModelVersion): boolean {
     return this.canApprove && version.stage === LifecycleStage.VALIDATED;
+  }
+
+  canDeployVersion(version: ModelVersion): boolean {
+    return this.canDeploy && DEPLOYABLE_STAGES.has(version.stage);
+  }
+
+  deploy(version: ModelVersion): void {
+    const model = this.model();
+    if (!model) {
+      return;
+    }
+    const ref = this.dialog.open(DeploymentFormDialog, {
+      data: {
+        modelId: model.id,
+        modelName: model.name,
+        versionId: version.id,
+        versionLabel: `v${version.version}`,
+      },
+    });
+    ref.afterClosed().subscribe((payload: CreateDeployment | undefined) => {
+      if (!payload) {
+        return;
+      }
+      this.deployments.create(payload).subscribe({
+        next: () => {
+          this.snack.open('Deployment requested', 'Dismiss', { duration: 3000 });
+          void this.router.navigate(['/deployments']);
+        },
+        error: (err) => this.fail(err),
+      });
+    });
   }
 
   addVersion(): void {

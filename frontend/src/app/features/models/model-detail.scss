@@ -261,6 +261,9 @@
   .detail-head {
     flex-direction: column;
   }
+  .detail-head > button {
+    align-self: flex-end;
+  }
   .meta {
     gap: 1.25rem;
     flex-wrap: wrap;
