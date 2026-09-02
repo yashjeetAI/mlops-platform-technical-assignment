@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, require_roles
-from app.core.enums import Role
+from app.core.enums import Environment, Role
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.model import (
@@ -18,7 +18,8 @@ from app.schemas.model import (
     ModelVersionResponse,
     StageChangeRequest,
 )
-from app.services import model_service
+from app.schemas.monitoring import MonitoringSummary
+from app.services import metric_service, model_service
 
 router = APIRouter(prefix="/models", tags=["models"])
 
@@ -51,6 +52,19 @@ def get_model(
     _: User = Depends(get_current_user),
 ):
     return model_service.get_model(db, model_id)
+
+
+@router.get("/{model_id}/metrics", response_model=MonitoringSummary)
+def get_model_metrics(
+    model_id: uuid.UUID,
+    version: str | None = Query(None),
+    environment: Environment | None = Query(None),
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    return metric_service.get_model_metrics(
+        db, model_id, version=version, environment=environment
+    )
 
 
 @router.post(

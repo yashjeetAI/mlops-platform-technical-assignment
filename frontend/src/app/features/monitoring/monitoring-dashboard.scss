@@ -1,0 +1,167 @@
+.page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.page-head h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.page-head p {
+  margin: 0 0 1.25rem;
+  color: var(--abb-gray-700);
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  color: var(--abb-gray-700);
+  text-align: center;
+}
+
+.state-error {
+  color: var(--abb-red);
+}
+
+.state mat-icon {
+  font-size: 2rem;
+  height: 2rem;
+  width: 2rem;
+}
+
+.retry {
+  border: 1px solid var(--abb-gray-300);
+  background: #fff;
+  border-radius: 8px;
+  padding: 0.3rem 0.9rem;
+  cursor: pointer;
+}
+
+// --- Overview health cards ---
+.overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.health-card {
+  padding: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.health-card:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.health-card.selected {
+  border-color: var(--abb-red);
+  box-shadow: 0 0 0 1px var(--abb-red);
+}
+
+.health-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.health-name {
+  font-weight: 600;
+}
+
+.health-stats {
+  display: flex;
+  gap: 1rem;
+  margin: 0.7rem 0 0.35rem;
+  font-size: 0.85rem;
+  color: var(--abb-black);
+}
+
+.health-sub {
+  font-size: 0.75rem;
+  color: var(--abb-gray-500);
+}
+
+// --- Selected model detail ---
+.detail-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 2rem 0 1rem;
+}
+
+.combo {
+  margin-left: auto;
+  min-width: 220px;
+}
+
+.detail-head h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.last-inf {
+  font-size: 0.8rem;
+  color: var(--abb-gray-500);
+}
+
+.detail-loading {
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.metric-card {
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+}
+
+.metric-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--abb-gray-500);
+  font-weight: 700;
+}
+
+.metric-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--abb-black);
+  margin: 0.25rem 0 0.5rem;
+}
+
+.metric-unit {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--abb-gray-500);
+  margin-left: 0.2rem;
+}
+
+.spark {
+  width: 100%;
+  height: 28px;
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 1.25rem 1rem;
+  }
+}

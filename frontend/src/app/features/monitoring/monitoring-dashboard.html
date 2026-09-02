@@ -1,0 +1,91 @@
+<div class="page">
+  <header class="page-head">
+    <h1>Monitoring</h1>
+    <p>Model health, latency, quality and drift.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="state"><mat-spinner diameter="36" /><span>Loading…</span></div>
+  } @else if (error()) {
+    <div class="state state-error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <button class="retry" (click)="load()">Retry</button>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="state state-empty">
+      <mat-icon>monitoring</mat-icon>
+      <span>No models to monitor yet.</span>
+    </div>
+  } @else {
+    <!-- Health overview -->
+    <div class="overview">
+      @for (m of items(); track m.modelId) {
+        <mat-card
+          class="health-card"
+          [class.selected]="m.modelId === selectedId()"
+          appearance="outlined"
+          (click)="select(m)"
+          tabindex="0"
+        >
+          <div class="health-top">
+            <span class="health-name">{{ m.name }}</span>
+            <span [class]="statusClass(m.monitoringStatus)">{{ m.monitoringStatus }}</span>
+          </div>
+          @if (m.latest) {
+            <div class="health-stats">
+              <span>{{ m.latest.latencyMs.toFixed(0) }} ms</span>
+              <span>{{ (m.latest.errorRate * 100).toFixed(1) }}% err</span>
+              <span>{{ m.latest.availability.toFixed(1) }}% up</span>
+            </div>
+            <div class="health-sub">Last inference {{ m.lastInferenceAt | date: 'short' }}</div>
+          } @else {
+            <div class="health-sub">No metrics reported.</div>
+          }
+        </mat-card>
+      }
+    </div>
+
+    <!-- Selected model detail -->
+    @if (selected(); as s) {
+      <div class="detail-head">
+        <h2>{{ s.name }}</h2>
+        <span [class]="statusClass(s.monitoringStatus)">{{ s.monitoringStatus }}</span>
+        @if (s.lastInferenceAt) {
+          <span class="last-inf">last inference {{ s.lastInferenceAt | date: 'medium' }}</span>
+        }
+        @if (s.available.length > 0) {
+          <mat-form-field appearance="outline" class="combo" subscriptSizing="dynamic">
+            <mat-label>Version · environment</mat-label>
+            <mat-select [value]="currentKey()" (selectionChange)="changeCombo($event.value)">
+              @for (ref of s.available; track refKey(ref)) {
+                <mat-option [value]="refKey(ref)">v{{ ref.version }} · {{ ref.environment }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+      </div>
+
+      @if (metricCards().length === 0) {
+        <div class="state state-empty">
+          <mat-icon>show_chart</mat-icon>
+          <span>No metrics for this model.</span>
+        </div>
+      } @else {
+        <div class="metric-grid">
+          @for (c of metricCards(); track c.label) {
+            <mat-card class="metric-card" appearance="outlined">
+              <div class="metric-label">{{ c.label }}</div>
+              <div class="metric-value">{{ c.value }}<span class="metric-unit">{{ c.unit }}</span></div>
+              <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polyline [attr.points]="sparkline(c.spark)" fill="none" stroke="var(--abb-red)" stroke-width="1.5" />
+              </svg>
+            </mat-card>
+          }
+        </div>
+      }
+    } @else {
+      <div class="detail-loading"><mat-spinner diameter="28" /></div>
+    }
+  }
+</div>
