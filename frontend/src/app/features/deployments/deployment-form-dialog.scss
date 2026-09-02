@@ -1,0 +1,44 @@
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 26rem;
+  max-width: 80vw;
+  padding-top: 0.75rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.prefilled {
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.prefilled strong {
+  font-weight: 600;
+}
+
+.sim {
+  margin: 0.25rem 0 0.5rem;
+}
+
+// Sticky search box at the top of a mat-select panel.
+.select-search {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--abb-gray-300);
+}
+
+.ss-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  background: transparent;
+  color: var(--abb-black);
+}

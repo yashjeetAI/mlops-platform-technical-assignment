@@ -8,29 +8,38 @@
     } @else {
       <mat-form-field appearance="outline">
         <mat-label>Model</mat-label>
-        <input
-          matInput
-          [formControl]="modelSearch"
-          [matAutocomplete]="auto"
-          (input)="onModelSearch($any($event.target).value)"
-          placeholder="Type to search…"
-        />
-        <mat-autocomplete
-          #auto="matAutocomplete"
-          [displayWith]="displayModel"
-          (optionSelected)="pickModel($event.option.value)"
-        >
-          @for (m of models(); track m.id) {
-            <mat-option [value]="m">{{ m.name }} · {{ m.key }}</mat-option>
+        <mat-select formControlName="modelId" (selectionChange)="onModelChange($event.value)">
+          <div class="select-search" (click)="$event.stopPropagation()">
+            <input
+              class="ss-input"
+              placeholder="Search models…"
+              (input)="searchModels($any($event.target).value)"
+              (keydown)="$event.stopPropagation()"
+            />
+          </div>
+          @for (m of modelOptions(); track m.id) {
+            <mat-option [value]="m.id">{{ m.name }} · {{ m.key }}</mat-option>
+          } @empty {
+            <mat-option disabled>No models found</mat-option>
           }
-        </mat-autocomplete>
+        </mat-select>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Version</mat-label>
-        <mat-select formControlName="modelVersionId">
-          @for (v of versions(); track v.id) {
+        <mat-select formControlName="modelVersionId" [disabled]="!form.value.modelId">
+          <div class="select-search" (click)="$event.stopPropagation()">
+            <input
+              class="ss-input"
+              placeholder="Search versions…"
+              (input)="onVersionSearch($any($event.target).value)"
+              (keydown)="$event.stopPropagation()"
+            />
+          </div>
+          @for (v of filteredVersions(); track v.id) {
             <mat-option [value]="v.id">v{{ v.version }} · {{ v.stage }}</mat-option>
+          } @empty {
+            <mat-option disabled>No versions</mat-option>
           }
         </mat-select>
         @if (!form.value.modelId) {

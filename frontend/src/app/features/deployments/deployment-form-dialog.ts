@@ -1,6 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -26,38 +25,13 @@ export interface DeployDialogData {
     ReactiveFormsModule,
     MatDialogModule,
     MatFormFieldModule,
-    MatAutocompleteModule,
     MatSelectModule,
     MatInputModule,
     MatCheckboxModule,
     MatButtonModule,
   ],
   templateUrl: './deployment-form-dialog.html',
-  styles: [
-    `
-      .dialog-body {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        width: 26rem;
-        max-width: 80vw;
-        padding-top: 0.75rem;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .prefilled {
-        margin-bottom: 0.75rem;
-        font-size: 0.9rem;
-      }
-      .prefilled strong {
-        font-weight: 600;
-      }
-      .sim {
-        margin: 0.25rem 0 0.5rem;
-      }
-    `,
-  ],
+  styleUrl: './deployment-form-dialog.scss',
 })
 export class DeploymentFormDialog {
   private readonly fb = inject(FormBuilder);
@@ -66,12 +40,27 @@ export class DeploymentFormDialog {
   /** Present when opened pre-filled from a version. */
   readonly data = inject<DeployDialogData | null>(MAT_DIALOG_DATA, { optional: true });
 
-  readonly models = signal<ModelSummary[]>([]);
+  readonly models = signal<ModelSummary[]>([]); // server search results
+  readonly selectedModel = signal<ModelSummary | null>(null);
   readonly versions = signal<ModelVersion[]>([]);
+  readonly versionQuery = signal('');
   readonly environments = ENVIRONMENTS;
 
-  // Autocomplete input; its value becomes a ModelSummary once an option is picked.
-  readonly modelSearch = new FormControl<string | ModelSummary>('');
+  // Keep the selected model in the options so mat-select can display it even
+  // after the search results change.
+  readonly modelOptions = computed<ModelSummary[]>(() => {
+    const sel = this.selectedModel();
+    const list = this.models();
+    return sel && !list.some((m) => m.id === sel.id) ? [sel, ...list] : list;
+  });
+
+  readonly filteredVersions = computed<ModelVersion[]>(() => {
+    const q = this.versionQuery().toLowerCase();
+    const list = this.versions();
+    return q
+      ? list.filter((v) => `v${v.version} ${v.stage}`.toLowerCase().includes(q))
+      : list;
+  });
 
   readonly form = this.fb.nonNullable.group({
     modelId: ['', Validators.required],
@@ -82,35 +71,37 @@ export class DeploymentFormDialog {
 
   constructor() {
     if (this.data) {
-      // Pre-filled from a version: model + version are fixed (no lookup needed).
+      // Pre-filled from a version: model + version are fixed.
       this.form.patchValue({
         modelId: this.data.modelId,
         modelVersionId: this.data.versionId,
       });
+    } else {
+      this.searchModels(''); // initial list so the dropdown isn't empty
     }
   }
 
-  /** Server-side model search (scales to thousands of models). */
-  onModelSearch(term: string): void {
-    if (!term || term.length < 1) {
-      this.models.set([]);
-      return;
-    }
-    this.registry.listModels({ limit: 20, offset: 0, q: term }).subscribe((page) => {
+  searchModels(term: string): void {
+    this.registry.listModels({ limit: 20, offset: 0, q: term || undefined }).subscribe((page) => {
       this.models.set(page.items);
     });
   }
 
-  pickModel(model: ModelSummary): void {
-    this.form.patchValue({ modelId: model.id, modelVersionId: '' });
+  onModelChange(modelId: string): void {
+    const model = this.modelOptions().find((m) => m.id === modelId) ?? null;
+    this.selectedModel.set(model);
+    this.form.patchValue({ modelVersionId: '' });
     this.versions.set([]);
-    this.registry.listVersions(model.id, { limit: 100, offset: 0 }).subscribe((page) => {
-      this.versions.set(page.items);
-    });
+    this.versionQuery.set('');
+    if (model) {
+      this.registry.listVersions(model.id, { limit: 100, offset: 0 }).subscribe((page) => {
+        this.versions.set(page.items);
+      });
+    }
   }
 
-  displayModel(value: ModelSummary | string | null): string {
-    return value && typeof value !== 'string' ? value.name : '';
+  onVersionSearch(term: string): void {
+    this.versionQuery.set(term);
   }
 
   submit(): void {
