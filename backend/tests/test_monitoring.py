@@ -10,13 +10,27 @@ def _seed(db_session):
     return seed_sample_data(db)
 
 
-def test_sample_seeder_loads_data(client, db_session):
+def test_sample_seeder_loads_coherent_data(client, db_session):
+    db, _ = db_session
     counts = _seed(db_session)
     assert counts["models"] == 2
     assert counts["versions"] == 4
+    assert counts["deployments"] >= 3  # one per (version, env) with metrics + a failed one
     assert counts["metrics"] > 0
+    # every metric is linked to the deployment that produced it
+    from app.models.metric import Metric
+    from sqlalchemy import func, select
+    orphans = db.execute(
+        select(func.count()).select_from(Metric).where(Metric.deployment_id.is_(None))
+    ).scalar_one()
+    assert orphans == 0
+    # versions have lifecycle audit history; deployments have event timelines
+    from app.models.deployment import DeploymentEvent
+    from app.models.model import ModelVersionEvent
+    assert db.execute(select(func.count()).select_from(ModelVersionEvent)).scalar_one() > 0
+    assert db.execute(select(func.count()).select_from(DeploymentEvent)).scalar_one() > 0
     # idempotent — second run is a no-op
-    assert seed_sample_data(db_session[0])["models"] == 0
+    assert seed_sample_data(db)["models"] == 0
 
 
 def test_monitoring_overview(client, db_session):

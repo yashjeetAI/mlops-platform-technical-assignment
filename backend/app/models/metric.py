@@ -25,6 +25,10 @@ class Metric(UUIDPrimaryKeyMixin, Base):
     model_version_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid(as_uuid=True), ForeignKey("model_versions.id", ondelete="CASCADE"), nullable=True
     )
+    # The deployment that produced this sample (metrics come from a running deployment).
+    deployment_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("deployments.id", ondelete="SET NULL"), nullable=True
+    )
     version: Mapped[str] = mapped_column(String(64), nullable=False)
     environment: Mapped[Environment] = mapped_column(
         SAEnum(Environment, native_enum=False, length=32), nullable=False
