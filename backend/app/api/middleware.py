@@ -13,6 +13,11 @@ CORRELATION_HEADER = "X-Request-ID"
 logger = get_logger("http")
 
 
+def get_correlation_id() -> str | None:
+    """Current request's correlation id from the bound log context (or None)."""
+    return structlog.contextvars.get_contextvars().get("correlation_id")
+
+
 class CorrelationIdMiddleware(BaseHTTPMiddleware):
     """Bind a correlation id to the log context for the whole request.
 
