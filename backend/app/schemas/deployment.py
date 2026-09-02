@@ -31,6 +31,9 @@ class DeploymentResponse(CamelModel):
     id: UUID
     model_id: UUID
     model_version_id: UUID
+    # Denormalized for display.
+    model_key: str | None
+    version: str | None
     environment: Environment
     status: DeploymentStatus
     idempotency_key: str | None
@@ -45,3 +48,10 @@ class DeploymentResponse(CamelModel):
 
 class DeploymentDetailResponse(DeploymentResponse):
     events: list[DeploymentEventResponse] = Field(default_factory=list)
+
+
+class DeploymentPage(CamelModel):
+    items: list[DeploymentResponse]
+    total: int
+    limit: int
+    offset: int

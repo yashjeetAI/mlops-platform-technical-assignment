@@ -1,0 +1,146 @@
+<mat-sidenav-container class="dep-shell">
+  <mat-sidenav
+    position="end"
+    mode="over"
+    [opened]="drawerOpen()"
+    (closedStart)="drawerOpen.set(false)"
+    class="timeline-drawer"
+  >
+    @if (detail(); as d) {
+      <div class="drawer-head">
+        <div>
+          <h2>{{ d.modelKey }} · v{{ d.version }}</h2>
+          <span class="drawer-env">{{ d.environment }}</span>
+          <span [class]="statusClass(d.status)">{{ d.status }}</span>
+        </div>
+        <button mat-icon-button (click)="closeDrawer()" aria-label="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      @if (d.error) {
+        <div class="drawer-error"><mat-icon>error_outline</mat-icon> {{ d.error }}</div>
+      }
+
+      <div class="drawer-actions">
+        @if (canDeploy && d.status === Status.FAILED) {
+          <button mat-stroked-button color="primary" (click)="retry(d)">
+            <mat-icon>replay</mat-icon> Retry
+          </button>
+        }
+        @if (canRollback && d.status === Status.SUCCEEDED) {
+          <button mat-stroked-button (click)="rollback(d)">
+            <mat-icon>settings_backup_restore</mat-icon> Rollback
+          </button>
+        }
+      </div>
+
+      <h3 class="timeline-title">Event timeline</h3>
+      <ol class="timeline">
+        @for (e of d.events; track e.id) {
+          <li class="tl-item">
+            <span class="tl-dot" [class]="'dot-' + e.status.toLowerCase()"></span>
+            <div class="tl-body">
+              <div class="tl-top">
+                <span class="tl-event">{{ e.event }}</span>
+                <span [class]="statusClass(e.status)">{{ e.status }}</span>
+              </div>
+              @if (e.message) { <div class="tl-msg">{{ e.message }}</div> }
+              <div class="tl-meta">
+                {{ e.createdAt | date: 'medium' }}@if (e.actor) { · {{ e.actor }} }
+              </div>
+            </div>
+          </li>
+        }
+      </ol>
+    } @else {
+      <div class="drawer-loading"><mat-spinner diameter="28" /></div>
+    }
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="page">
+      <header class="page-head">
+        <div>
+          <h1>Deployments</h1>
+          <p>Request deployments and track their progress.</p>
+        </div>
+        @if (canDeploy) {
+          <button mat-flat-button color="primary" (click)="newDeployment()">
+            <mat-icon>rocket_launch</mat-icon> New deployment
+          </button>
+        }
+      </header>
+
+      @if (loading()) {
+        <div class="state"><mat-spinner diameter="36" /><span>Loading…</span></div>
+      } @else if (error()) {
+        <div class="state state-error">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ error() }}</span>
+          <button mat-stroked-button (click)="loadList()">Retry</button>
+        </div>
+      } @else if (total() === 0) {
+        <div class="state state-empty">
+          <mat-icon>rocket_launch</mat-icon>
+          <span>No deployments yet.</span>
+        </div>
+      } @else if (isHandset()) {
+        <div class="grid">
+          @for (d of deployments(); track d.id) {
+            <mat-card class="dep-card" appearance="outlined" (click)="openDetail(d)" tabindex="0">
+              <div class="dep-top">
+                <span class="dep-model">{{ d.modelKey }} · v{{ d.version }}</span>
+                <span [class]="statusClass(d.status)">{{ d.status }}</span>
+              </div>
+              <div class="dep-sub">{{ d.environment }} · {{ d.createdAt | date: 'short' }}</div>
+            </mat-card>
+          }
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table mat-table [dataSource]="deployments()" class="dep-table">
+            <ng-container matColumnDef="model">
+              <th mat-header-cell *matHeaderCellDef>Model version</th>
+              <td mat-cell *matCellDef="let d" class="cell-model">{{ d.modelKey }} · v{{ d.version }}</td>
+            </ng-container>
+            <ng-container matColumnDef="environment">
+              <th mat-header-cell *matHeaderCellDef>Environment</th>
+              <td mat-cell *matCellDef="let d">{{ d.environment }}</td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let d"><span [class]="statusClass(d.status)">{{ d.status }}</span></td>
+            </ng-container>
+            <ng-container matColumnDef="attempts">
+              <th mat-header-cell *matHeaderCellDef>Attempts</th>
+              <td mat-cell *matCellDef="let d">{{ d.attempts }}</td>
+            </ng-container>
+            <ng-container matColumnDef="created">
+              <th mat-header-cell *matHeaderCellDef>Requested</th>
+              <td mat-cell *matCellDef="let d">{{ d.createdAt | date: 'short' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let d" class="cell-action"><mat-icon>chevron_right</mat-icon></td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns" class="dep-row" (click)="openDetail(row)"></tr>
+          </table>
+        </div>
+      }
+
+      @if (!loading() && !error() && total() > 0) {
+        <mat-paginator
+          class="pager"
+          [length]="total()"
+          [pageSize]="pageSize()"
+          [pageIndex]="pageIndex()"
+          [pageSizeOptions]="[10, 20, 50]"
+          (page)="onPage($event)"
+        />
+      }
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -54,7 +54,7 @@ export class App {
   readonly nav: NavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/', exact: true },
     { label: 'Model Registry', icon: 'inventory_2', route: '/models' },
-    { label: 'Deployments', icon: 'rocket_launch', soon: true },
+    { label: 'Deployments', icon: 'rocket_launch', route: '/deployments' },
     { label: 'Monitoring', icon: 'monitoring', soon: true },
   ];
 

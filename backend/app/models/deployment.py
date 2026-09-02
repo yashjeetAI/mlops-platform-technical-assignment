@@ -91,6 +91,20 @@ class Deployment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         order_by="DeploymentEvent.created_at",
     )
 
+    # Read-only relationships for display (model name + version string).
+    model: Mapped["Model"] = relationship("Model", lazy="selectin", viewonly=True)
+    model_version: Mapped["ModelVersion"] = relationship(
+        "ModelVersion", lazy="selectin", viewonly=True
+    )
+
+    @property
+    def model_key(self) -> str | None:
+        return self.model.key if self.model else None
+
+    @property
+    def version(self) -> str | None:
+        return self.model_version.version if self.model_version else None
+
 
 class DeploymentEvent(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "deployment_events"
