@@ -4,7 +4,7 @@
 }
 
 .page {
-  max-width: 900px;
+  max-width: 1040px;
   margin: 0 auto;
   padding: 1.5rem 1.5rem 2.5rem;
 }
@@ -115,7 +115,7 @@
   background: #fff;
   border: 1px solid var(--abb-gray-300);
   border-radius: 10px;
-  overflow: hidden;
+  overflow-x: auto; // scroll fallback if content is wider than the container
 }
 
 .versions-table {
@@ -157,11 +157,21 @@
 }
 
 .artifact {
+  display: inline-block;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
   font-size: 0.78rem;
   color: var(--abb-gray-700);
   background: var(--abb-gray-100);
   padding: 0.1rem 0.4rem;
   border-radius: 4px;
+}
+
+.cell-actions {
+  white-space: nowrap;
 }
 
 .cell-actions {
