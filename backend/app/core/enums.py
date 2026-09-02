@@ -18,6 +18,20 @@ class Role(StrEnum):
     ADMIN = "ADMIN"
 
 
+class Framework(StrEnum):
+    """Supported ML frameworks (values are the canonical framework names)."""
+
+    SCIKIT_LEARN = "scikit-learn"
+    PYTORCH = "pytorch"
+    TENSORFLOW = "tensorflow"
+    KERAS = "keras"
+    XGBOOST = "xgboost"
+    LIGHTGBM = "lightgbm"
+    ONNX = "onnx"
+    TRANSFORMERS = "transformers"
+    OTHER = "other"
+
+
 class LifecycleStage(StrEnum):
     """Model-version lifecycle stages.
 

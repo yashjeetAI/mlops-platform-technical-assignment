@@ -42,12 +42,24 @@ export interface ModelDetail extends ModelSummary {
 }
 
 export interface CreateModel {
-  key: string;
   name: string;
   owner: string;
   framework: string;
   tags?: Record<string, unknown>;
 }
+
+/** Supported frameworks — mirrors the backend `Framework` enum. */
+export const FRAMEWORKS = [
+  'scikit-learn',
+  'pytorch',
+  'tensorflow',
+  'keras',
+  'xgboost',
+  'lightgbm',
+  'onnx',
+  'transformers',
+  'other',
+] as const;
 
 export interface CreateVersion {
   version: string;

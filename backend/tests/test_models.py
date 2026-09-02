@@ -4,7 +4,6 @@ import uuid
 from tests.conftest import auth_header
 
 MODEL = {
-    "key": "pump-failure-predictor",
     "name": "Pump Failure Predictor",
     "owner": "Reliability AI Team",
     "framework": "scikit-learn",
@@ -41,7 +40,7 @@ def test_create_and_get_model_with_versions(client):
     _create_version(client, eng, model_id, "2.0.0")
 
     detail = client.get(f"/models/{model_id}", headers=eng).json()
-    assert detail["key"] == "pump-failure-predictor"
+    assert detail["key"] == "pump-failure-predictor"  # slug derived from name
     assert len(detail["versions"]) == 2
     v = detail["versions"][0]
     assert v["stage"] == "DRAFT"
@@ -126,11 +125,19 @@ def test_unauthenticated_is_rejected(client):
 
 # --- conflicts / not found ---
 
-def test_duplicate_model_key_conflicts(client):
+def test_duplicate_name_gets_unique_slug(client):
     eng = auth_header(client, "engineer")
-    _create_model(client, eng)
-    resp = client.post("/models", json=MODEL, headers=eng)
-    assert resp.status_code == 409
+    first = client.post("/models", json=MODEL, headers=eng).json()
+    second = client.post("/models", json=MODEL, headers=eng)
+    assert second.status_code == 201  # no conflict — slug is uniquified
+    assert first["key"] == "pump-failure-predictor"
+    assert second.json()["key"] == "pump-failure-predictor-2"
+
+
+def test_invalid_framework_rejected(client):
+    eng = auth_header(client, "engineer")
+    resp = client.post("/models", json={**MODEL, "framework": "cobol-ml"}, headers=eng)
+    assert resp.status_code == 422  # not in the Framework enum
 
 
 def test_duplicate_version_conflicts(client):

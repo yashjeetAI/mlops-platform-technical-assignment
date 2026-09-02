@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.core.enums import LifecycleStage
 from app.core.exceptions import ConflictError, NotFoundError
 from app.core.logging import get_logger
+from app.core.text import slugify
 from app.models.mixins import utcnow
 from app.models.model import Model, ModelVersion
 from app.schemas.model import ModelCreate, ModelVersionCreate
@@ -21,15 +22,23 @@ logger = get_logger("registry")
 
 # --- models ---
 
+def _unique_key(db: Session, name: str) -> str:
+    """Derive a unique slug from the model name (append -2, -3, … on collision)."""
+    base = slugify(name)
+    key = base
+    n = 2
+    while db.execute(select(Model).where(Model.key == key)).scalar_one_or_none() is not None:
+        key = f"{base}-{n}"
+        n += 1
+    return key
+
+
 def create_model(db: Session, actor_id: uuid.UUID, data: ModelCreate) -> Model:
-    exists = db.execute(select(Model).where(Model.key == data.key)).scalar_one_or_none()
-    if exists is not None:
-        raise ConflictError(f"Model with key '{data.key}' already exists")
     model = Model(
-        key=data.key,
+        key=_unique_key(db, data.name),
         name=data.name,
         owner=data.owner,
-        framework=data.framework,
+        framework=data.framework.value,
         tags=data.tags,
         created_by=actor_id,
     )
