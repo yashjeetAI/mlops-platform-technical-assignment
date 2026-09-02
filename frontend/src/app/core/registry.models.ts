@@ -37,12 +37,15 @@ export interface ModelVersion {
   updatedAt: string;
 }
 
-export interface ModelDetail extends ModelSummary {
-  versions: ModelVersion[];
-}
-
 export interface ModelPage {
   items: ModelSummary[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface ModelVersionPage {
+  items: ModelVersion[];
   total: number;
   limit: number;
   offset: number;

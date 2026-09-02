@@ -121,15 +121,25 @@ def create_version(
     return version
 
 
-def list_versions(db: Session, model_id: uuid.UUID) -> list[ModelVersion]:
-    get_model(db, model_id)
-    return list(
+def list_versions(
+    db: Session, model_id: uuid.UUID, *, limit: int = 20, offset: int = 0
+) -> tuple[list[ModelVersion], int]:
+    """Return (page of versions, total count) for a model, newest first."""
+    get_model(db, model_id)  # 404 if the model is missing
+    where = ModelVersion.model_id == model_id
+    total = db.execute(
+        select(func.count()).select_from(ModelVersion).where(where)
+    ).scalar_one()
+    items = list(
         db.execute(
             select(ModelVersion)
-            .where(ModelVersion.model_id == model_id)
+            .where(where)
             .order_by(ModelVersion.id.desc())  # newest first
+            .offset(offset)
+            .limit(limit)
         ).scalars()
     )
+    return items, total
 
 
 def get_version(db: Session, version_id: uuid.UUID) -> ModelVersion:

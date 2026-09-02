@@ -10,10 +10,10 @@ from app.db.session import get_db
 from app.models.user import User
 from app.schemas.model import (
     ModelCreate,
-    ModelDetailResponse,
     ModelPage,
     ModelResponse,
     ModelVersionCreate,
+    ModelVersionPage,
     ModelVersionResponse,
     StageChangeRequest,
 )
@@ -43,7 +43,7 @@ def list_models(
     return ModelPage(items=items, total=total, limit=limit, offset=offset)
 
 
-@router.get("/{model_id}", response_model=ModelDetailResponse)
+@router.get("/{model_id}", response_model=ModelResponse)
 def get_model(
     model_id: uuid.UUID,
     db: Session = Depends(get_db),
@@ -66,13 +66,16 @@ def create_version(
     return model_service.create_version(db, user.id, model_id, payload)
 
 
-@router.get("/{model_id}/versions", response_model=list[ModelVersionResponse])
+@router.get("/{model_id}/versions", response_model=ModelVersionPage)
 def list_versions(
     model_id: uuid.UUID,
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
 ):
-    return model_service.list_versions(db, model_id)
+    items, total = model_service.list_versions(db, model_id, limit=limit, offset=offset)
+    return ModelVersionPage(items=items, total=total, limit=limit, offset=offset)
 
 
 @router.post(

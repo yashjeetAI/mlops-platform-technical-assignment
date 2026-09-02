@@ -33,21 +33,35 @@ def _create_version(client, hdr, model_id, version="1.0.0"):
 
 # --- happy path / CRUD ---
 
-def test_create_and_get_model_with_versions(client):
+def test_create_model_and_list_versions(client):
     eng = auth_header(client, "engineer")
     model_id = _create_model(client, eng)
     _create_version(client, eng, model_id, "1.0.0")
     _create_version(client, eng, model_id, "2.0.0")
 
-    detail = client.get(f"/models/{model_id}", headers=eng).json()
-    assert detail["key"] == "pump-failure-predictor"  # slug derived from name
-    assert len(detail["versions"]) == 2
-    # newest version first
-    assert [v["version"] for v in detail["versions"]] == ["2.0.0", "1.0.0"]
-    v = detail["versions"][0]
+    meta = client.get(f"/models/{model_id}", headers=eng).json()
+    assert meta["key"] == "pump-failure-predictor"  # slug derived from name
+    assert "versions" not in meta  # single-model endpoint returns meta only
+
+    page = client.get(f"/models/{model_id}/versions", headers=eng).json()
+    assert page["total"] == 2
+    assert [v["version"] for v in page["items"]] == ["2.0.0", "1.0.0"]  # newest first
+    v = page["items"][0]
     assert v["stage"] == "DRAFT"
     assert v["approved"] is False
     assert v["artifactUri"].startswith("s3://")  # camelCase contract
+
+
+def test_versions_pagination(client):
+    eng = auth_header(client, "engineer")
+    model_id = _create_model(client, eng)
+    for i in range(3):
+        _create_version(client, eng, model_id, f"1.0.{i}")
+
+    p1 = client.get(f"/models/{model_id}/versions?limit=2&offset=0", headers=eng).json()
+    assert p1["total"] == 3 and len(p1["items"]) == 2
+    p2 = client.get(f"/models/{model_id}/versions?limit=2&offset=2", headers=eng).json()
+    assert len(p2["items"]) == 1
 
 
 def test_list_models_visible_to_viewer(client):

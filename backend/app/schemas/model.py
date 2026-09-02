@@ -61,12 +61,15 @@ class ModelResponse(CamelModel):
     updated_at: datetime
 
 
-class ModelDetailResponse(ModelResponse):
-    versions: list[ModelVersionResponse] = Field(default_factory=list)
-
-
 class ModelPage(CamelModel):
     items: list[ModelResponse]
+    total: int
+    limit: int
+    offset: int
+
+
+class ModelVersionPage(CamelModel):
+    items: list[ModelVersionResponse]
     total: int
     limit: int
     offset: int

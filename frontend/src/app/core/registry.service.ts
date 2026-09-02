@@ -7,10 +7,10 @@ import {
   CreateModel,
   CreateVersion,
   LifecycleStage,
-  ModelDetail,
   ModelPage,
   ModelSummary,
   ModelVersion,
+  ModelVersionPage,
 } from './registry.models';
 
 @Injectable({ providedIn: 'root' })
@@ -28,8 +28,16 @@ export class RegistryService {
     return this.http.get<ModelPage>(this.base, { params });
   }
 
-  getModel(id: string): Observable<ModelDetail> {
-    return this.http.get<ModelDetail>(`${this.base}/${id}`);
+  getModel(id: string): Observable<ModelSummary> {
+    return this.http.get<ModelSummary>(`${this.base}/${id}`);
+  }
+
+  listVersions(
+    modelId: string,
+    opts: { limit: number; offset: number },
+  ): Observable<ModelVersionPage> {
+    const params = new HttpParams().set('limit', opts.limit).set('offset', opts.offset);
+    return this.http.get<ModelVersionPage>(`${this.base}/${modelId}/versions`, { params });
   }
 
   createModel(payload: CreateModel): Observable<ModelSummary> {

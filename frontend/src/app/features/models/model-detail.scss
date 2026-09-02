@@ -82,6 +82,64 @@
   color: var(--abb-red);
 }
 
+// --- Desktop versions table ---
+.table-wrap {
+  background: #fff;
+  border: 1px solid var(--abb-gray-300);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.versions-table {
+  width: 100%;
+  background: #fff;
+}
+
+.versions-table th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--abb-gray-500);
+  font-weight: 700;
+}
+
+.cell-version {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.approved-icon {
+  color: #2e7d32;
+  font-size: 1rem;
+  height: 1rem;
+  width: 1rem;
+  vertical-align: middle;
+  margin-left: 0.25rem;
+}
+
+.artifact {
+  font-size: 0.78rem;
+  color: var(--abb-gray-700);
+  background: var(--abb-gray-100);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.cell-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cell-actions button {
+  margin-left: 0.4rem;
+}
+
+.pager {
+  margin-top: 0.75rem;
+  background: transparent;
+}
+
+// --- Mobile version cards ---
 .versions {
   display: flex;
   flex-direction: column;
