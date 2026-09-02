@@ -107,6 +107,11 @@
                       }
                     </mat-menu>
                   }
+                  @if (canDeployVersion(v)) {
+                    <button mat-stroked-button (click)="deploy(v)">
+                      <mat-icon>rocket_launch</mat-icon> Deploy
+                    </button>
+                  }
                 </div>
               </mat-card>
             }
@@ -160,6 +165,11 @@
                         <button mat-menu-item (click)="promote(v, t)">{{ t }}</button>
                       }
                     </mat-menu>
+                  }
+                  @if (canDeployVersion(v)) {
+                    <button mat-stroked-button (click)="deploy(v)" matTooltip="Deploy this version">
+                      <mat-icon>rocket_launch</mat-icon> Deploy
+                    </button>
                   }
                 </td>
               </ng-container>

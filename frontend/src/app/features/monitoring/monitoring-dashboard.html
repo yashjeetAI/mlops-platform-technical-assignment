@@ -4,6 +4,12 @@
     <p>Model health, latency, quality and drift.</p>
   </header>
 
+  <mat-form-field appearance="outline" class="search">
+    <mat-icon matPrefix>search</mat-icon>
+    <mat-label>Search models</mat-label>
+    <input matInput (input)="onSearch($any($event.target).value)" placeholder="name or key" />
+  </mat-form-field>
+
   @if (loading()) {
     <div class="state"><mat-spinner diameter="36" /><span>Loading…</span></div>
   } @else if (error()) {
@@ -12,10 +18,10 @@
       <span>{{ error() }}</span>
       <button class="retry" (click)="load()">Retry</button>
     </div>
-  } @else if (items().length === 0) {
+  } @else if (total() === 0) {
     <div class="state state-empty">
       <mat-icon>monitoring</mat-icon>
-      <span>No models to monitor yet.</span>
+      <span>{{ search() ? 'No models match your search.' : 'No models to monitor yet.' }}</span>
     </div>
   } @else {
     <!-- Health overview -->
@@ -45,6 +51,17 @@
         </mat-card>
       }
     </div>
+
+    @if (total() > pageSize()) {
+      <mat-paginator
+        class="pager"
+        [length]="total()"
+        [pageSize]="pageSize()"
+        [pageIndex]="pageIndex()"
+        [pageSizeOptions]="[12, 24, 48]"
+        (page)="onPage($event)"
+      />
+    }
 
     <!-- Selected model detail -->
     @if (selected(); as s) {

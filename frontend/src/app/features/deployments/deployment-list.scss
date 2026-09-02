@@ -28,6 +28,12 @@
   color: var(--abb-gray-700);
 }
 
+.search {
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 0.5rem;
+}
+
 .state {
   display: flex;
   flex-direction: column;

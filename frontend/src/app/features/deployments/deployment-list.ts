@@ -2,11 +2,13 @@ import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { interval, map } from 'rxjs';
+import { debounceTime, distinctUntilChanged, interval, map, Subject } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -34,6 +36,8 @@ import { DeploymentFormDialog } from './deployment-form-dialog';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatProgressSpinnerModule,
     MatDialogModule,
     MatTableModule,
@@ -60,8 +64,11 @@ export class DeploymentList {
   readonly total = signal(0);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
+  readonly search = signal('');
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+
+  private readonly searchInput$ = new Subject<string>();
 
   // Timeline drawer.
   readonly detail = signal<DeploymentDetail | null>(null);
@@ -74,11 +81,22 @@ export class DeploymentList {
   readonly Status = DeploymentStatus;
 
   constructor() {
+    this.searchInput$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((q) => {
+        this.search.set(q);
+        this.pageIndex.set(0);
+        this.loadList();
+      });
     this.loadList();
     // Poll for live status while anything is in flight (list) or the drawer is open.
     interval(2000)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.poll());
+  }
+
+  onSearch(value: string): void {
+    this.searchInput$.next(value);
   }
 
   loadList(quiet = false): void {
@@ -87,7 +105,11 @@ export class DeploymentList {
     }
     this.error.set(null);
     this.svc
-      .list({ limit: this.pageSize(), offset: this.pageIndex() * this.pageSize() })
+      .list({
+        limit: this.pageSize(),
+        offset: this.pageIndex() * this.pageSize(),
+        q: this.search() || undefined,
+      })
       .subscribe({
         next: (page) => {
           this.deployments.set(page.items);

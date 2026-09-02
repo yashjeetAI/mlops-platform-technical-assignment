@@ -40,10 +40,11 @@ def request_deployment(
 def list_deployments(
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
+    q: str | None = Query(None, description="Search model/version/environment/status"),
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
 ):
-    items, total = deployment_service.list_deployments(db, limit=limit, offset=offset)
+    items, total = deployment_service.list_deployments(db, limit=limit, offset=offset, q=q)
     return DeploymentPage(items=items, total=total, limit=limit, offset=offset)
 
 

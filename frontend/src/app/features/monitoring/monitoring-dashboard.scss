@@ -11,8 +11,19 @@
 }
 
 .page-head p {
-  margin: 0 0 1.25rem;
+  margin: 0 0 1rem;
   color: var(--abb-gray-700);
+}
+
+.search {
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 0.5rem;
+}
+
+.pager {
+  margin-top: 0.75rem;
+  background: transparent;
 }
 
 .state {

@@ -1,14 +1,24 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import { RegistryService } from '../../core/registry.service';
 import { ModelSummary, ModelVersion } from '../../core/registry.models';
 import { CreateDeployment, ENVIRONMENTS } from '../../core/deployment.models';
+
+/** Optional pre-fill (e.g. opening from a version row). */
+export interface DeployDialogData {
+  modelId: string;
+  modelName: string;
+  versionId: string;
+  versionLabel: string;
+}
 
 @Component({
   selector: 'app-deployment-form-dialog',
@@ -16,56 +26,13 @@ import { CreateDeployment, ENVIRONMENTS } from '../../core/deployment.models';
     ReactiveFormsModule,
     MatDialogModule,
     MatFormFieldModule,
+    MatAutocompleteModule,
     MatSelectModule,
+    MatInputModule,
     MatCheckboxModule,
     MatButtonModule,
   ],
-  template: `
-    <h2 mat-dialog-title>New deployment</h2>
-    <form [formGroup]="form" (ngSubmit)="submit()">
-      <mat-dialog-content class="dialog-body">
-        <mat-form-field appearance="outline">
-          <mat-label>Model</mat-label>
-          <mat-select formControlName="modelId">
-            @for (m of models(); track m.id) {
-              <mat-option [value]="m.id">{{ m.name }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Version</mat-label>
-          <mat-select formControlName="modelVersionId">
-            @for (v of versions(); track v.id) {
-              <mat-option [value]="v.id">v{{ v.version }} · {{ v.stage }}</mat-option>
-            }
-          </mat-select>
-          @if (!form.value.modelId) {
-            <mat-hint>Select a model first.</mat-hint>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Environment</mat-label>
-          <mat-select formControlName="environment">
-            @for (e of environments; track e) {
-              <mat-option [value]="e">{{ e }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-checkbox formControlName="simulateFailure" class="sim">
-          Simulate failure (demo)
-        </mat-checkbox>
-      </mat-dialog-content>
-      <mat-dialog-actions align="end">
-        <button mat-button type="button" mat-dialog-close>Cancel</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">
-          Deploy
-        </button>
-      </mat-dialog-actions>
-    </form>
-  `,
+  templateUrl: './deployment-form-dialog.html',
   styles: [
     `
       .dialog-body {
@@ -79,6 +46,13 @@ import { CreateDeployment, ENVIRONMENTS } from '../../core/deployment.models';
       mat-form-field {
         width: 100%;
       }
+      .prefilled {
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+      }
+      .prefilled strong {
+        font-weight: 600;
+      }
       .sim {
         margin: 0.25rem 0 0.5rem;
       }
@@ -89,10 +63,15 @@ export class DeploymentFormDialog {
   private readonly fb = inject(FormBuilder);
   private readonly registry = inject(RegistryService);
   private readonly ref = inject(MatDialogRef<DeploymentFormDialog, CreateDeployment>);
+  /** Present when opened pre-filled from a version. */
+  readonly data = inject<DeployDialogData | null>(MAT_DIALOG_DATA, { optional: true });
 
   readonly models = signal<ModelSummary[]>([]);
   readonly versions = signal<ModelVersion[]>([]);
   readonly environments = ENVIRONMENTS;
+
+  // Autocomplete input; its value becomes a ModelSummary once an option is picked.
+  readonly modelSearch = new FormControl<string | ModelSummary>('');
 
   readonly form = this.fb.nonNullable.group({
     modelId: ['', Validators.required],
@@ -102,19 +81,36 @@ export class DeploymentFormDialog {
   });
 
   constructor() {
-    this.registry.listModels({ limit: 100, offset: 0 }).subscribe((page) => {
+    if (this.data) {
+      // Pre-filled from a version: model + version are fixed (no lookup needed).
+      this.form.patchValue({
+        modelId: this.data.modelId,
+        modelVersionId: this.data.versionId,
+      });
+    }
+  }
+
+  /** Server-side model search (scales to thousands of models). */
+  onModelSearch(term: string): void {
+    if (!term || term.length < 1) {
+      this.models.set([]);
+      return;
+    }
+    this.registry.listModels({ limit: 20, offset: 0, q: term }).subscribe((page) => {
       this.models.set(page.items);
     });
-    // Load versions whenever the selected model changes.
-    this.form.controls.modelId.valueChanges.subscribe((modelId) => {
-      this.form.controls.modelVersionId.setValue('');
-      this.versions.set([]);
-      if (modelId) {
-        this.registry.listVersions(modelId, { limit: 100, offset: 0 }).subscribe((page) => {
-          this.versions.set(page.items);
-        });
-      }
+  }
+
+  pickModel(model: ModelSummary): void {
+    this.form.patchValue({ modelId: model.id, modelVersionId: '' });
+    this.versions.set([]);
+    this.registry.listVersions(model.id, { limit: 100, offset: 0 }).subscribe((page) => {
+      this.versions.set(page.items);
     });
+  }
+
+  displayModel(value: ModelSummary | string | null): string {
+    return value && typeof value !== 'string' ? value.name : '';
   }
 
   submit(): void {

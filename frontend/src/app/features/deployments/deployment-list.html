@@ -72,6 +72,12 @@
         }
       </header>
 
+      <mat-form-field appearance="outline" class="search">
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-label>Search deployments</mat-label>
+        <input matInput (input)="onSearch($any($event.target).value)" placeholder="model, version, environment, status" />
+      </mat-form-field>
+
       @if (loading()) {
         <div class="state"><mat-spinner diameter="36" /><span>Loading…</span></div>
       } @else if (error()) {
@@ -83,7 +89,7 @@
       } @else if (total() === 0) {
         <div class="state state-empty">
           <mat-icon>rocket_launch</mat-icon>
-          <span>No deployments yet.</span>
+          <span>{{ search() ? 'No deployments match your search.' : 'No deployments yet.' }}</span>
         </div>
       } @else if (isHandset()) {
         <div class="grid">

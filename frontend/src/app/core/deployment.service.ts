@@ -15,8 +15,11 @@ export class DeploymentService {
   private readonly http = inject(HttpClient);
   private readonly base = `${API_BASE_URL}/deployments`;
 
-  list(opts: { limit: number; offset: number }): Observable<DeploymentPage> {
-    const params = new HttpParams().set('limit', opts.limit).set('offset', opts.offset);
+  list(opts: { limit: number; offset: number; q?: string }): Observable<DeploymentPage> {
+    let params = new HttpParams().set('limit', opts.limit).set('offset', opts.offset);
+    if (opts.q) {
+      params = params.set('q', opts.q);
+    }
     return this.http.get<DeploymentPage>(this.base, { params });
   }
 
