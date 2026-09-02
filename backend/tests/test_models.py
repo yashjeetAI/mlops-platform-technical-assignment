@@ -42,6 +42,8 @@ def test_create_and_get_model_with_versions(client):
     detail = client.get(f"/models/{model_id}", headers=eng).json()
     assert detail["key"] == "pump-failure-predictor"  # slug derived from name
     assert len(detail["versions"]) == 2
+    # newest version first
+    assert [v["version"] for v in detail["versions"]] == ["2.0.0", "1.0.0"]
     v = detail["versions"][0]
     assert v["stage"] == "DRAFT"
     assert v["approved"] is False

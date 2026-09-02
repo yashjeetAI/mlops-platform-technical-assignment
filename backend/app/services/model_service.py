@@ -50,7 +50,8 @@ def create_model(db: Session, actor_id: uuid.UUID, data: ModelCreate) -> Model:
 
 
 def list_models(db: Session) -> list[Model]:
-    return list(db.execute(select(Model).order_by(Model.created_at)).scalars())
+    # Newest first (UUIDv7 id is time-ordered).
+    return list(db.execute(select(Model).order_by(Model.id.desc())).scalars())
 
 
 def get_model(db: Session, model_id: uuid.UUID) -> Model:
@@ -102,7 +103,7 @@ def list_versions(db: Session, model_id: uuid.UUID) -> list[ModelVersion]:
         db.execute(
             select(ModelVersion)
             .where(ModelVersion.model_id == model_id)
-            .order_by(ModelVersion.created_at)
+            .order_by(ModelVersion.id.desc())  # newest first
         ).scalars()
     )
 
