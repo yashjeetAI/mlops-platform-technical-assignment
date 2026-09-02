@@ -8,8 +8,13 @@
     } @else {
       <mat-form-field appearance="outline">
         <mat-label>Model</mat-label>
-        <mat-select formControlName="modelId" (selectionChange)="onModelChange($event.value)">
+        <mat-select
+          formControlName="modelId"
+          panelClass="search-select-panel"
+          (selectionChange)="onModelChange($event.value)"
+        >
           <div class="select-search" (click)="$event.stopPropagation()">
+            <mat-icon>search</mat-icon>
             <input
               class="ss-input"
               placeholder="Search models…"
@@ -18,7 +23,10 @@
             />
           </div>
           @for (m of modelOptions(); track m.id) {
-            <mat-option [value]="m.id">{{ m.name }} · {{ m.key }}</mat-option>
+            <mat-option [value]="m.id">
+              <span class="opt-name">{{ m.name }}</span>
+              <span class="opt-sub">{{ m.key }}</span>
+            </mat-option>
           } @empty {
             <mat-option disabled>No models found</mat-option>
           }
@@ -27,8 +35,13 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Version</mat-label>
-        <mat-select formControlName="modelVersionId" [disabled]="!form.value.modelId">
+        <mat-select
+          formControlName="modelVersionId"
+          panelClass="search-select-panel"
+          [disabled]="!form.value.modelId"
+        >
           <div class="select-search" (click)="$event.stopPropagation()">
+            <mat-icon>search</mat-icon>
             <input
               class="ss-input"
               placeholder="Search versions…"
@@ -37,7 +50,10 @@
             />
           </div>
           @for (v of filteredVersions(); track v.id) {
-            <mat-option [value]="v.id">v{{ v.version }} · {{ v.stage }}</mat-option>
+            <mat-option [value]="v.id">
+              <span class="opt-name">v{{ v.version }}</span>
+              <span class="opt-sub">{{ v.stage }}</span>
+            </mat-option>
           } @empty {
             <mat-option disabled>No versions</mat-option>
           }

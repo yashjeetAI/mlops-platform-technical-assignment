@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
@@ -27,6 +28,7 @@ export interface DeployDialogData {
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
+    MatIconModule,
     MatCheckboxModule,
     MatButtonModule,
   ],

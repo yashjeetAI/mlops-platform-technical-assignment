@@ -23,22 +23,5 @@ mat-form-field {
 .sim {
   margin: 0.25rem 0 0.5rem;
 }
-
-// Sticky search box at the top of a mat-select panel.
-.select-search {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: #fff;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--abb-gray-300);
-}
-
-.ss-input {
-  width: 100%;
-  border: none;
-  outline: none;
-  font-size: 0.9rem;
-  background: transparent;
-  color: var(--abb-black);
-}
+// Panel styling lives in styles.scss (.search-select-panel) — the mat-select
+// panel is rendered in a global overlay, outside this component's DOM.
