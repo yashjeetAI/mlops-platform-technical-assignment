@@ -195,4 +195,7 @@
   .page-head {
     flex-direction: column;
   }
+  .page-head > button {
+    align-self: flex-end;
+  }
 }
