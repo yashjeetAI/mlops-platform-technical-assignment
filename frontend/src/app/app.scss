@@ -16,17 +16,19 @@
 
 .side-brand {
   display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.45rem;
   height: 64px;
   padding: 0 1.25rem;
   text-decoration: none;
-  border-bottom: 3px solid var(--abb-red);
+  // Match the toolbar divider so the header strip reads as one continuous line.
+  border-bottom: 1px solid var(--abb-gray-300);
 }
 
 .brand-mark {
   font-weight: 800;
   font-size: 1.5rem;
+  line-height: 1;
   letter-spacing: 0.02em;
   color: var(--abb-red);
 }
@@ -34,7 +36,11 @@
 .brand-app {
   font-size: 1rem;
   font-weight: 600;
+  line-height: 1;
   color: var(--abb-black);
+  // Nudge onto the wordmark's baseline.
+  position: relative;
+  top: 2px;
 }
 
 // Inset the list so the M3 pills don't touch (and clip against) the rail edges.
@@ -58,21 +64,11 @@
   font-weight: 600;
 }
 
-// "Soon" (disabled) items: muted, no heavy surface.
-.nav a[mat-list-item][disabled] {
-  opacity: 0.6;
-  background: transparent;
-}
 
-.soon-tag {
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--abb-gray-500);
-  background: var(--abb-gray-100);
-  padding: 0.05rem 0.4rem;
-  border-radius: 999px;
+// "Soon" items: muted, non-navigating (tooltip explains). No heavy disabled surface.
+.nav .nav-soon {
+  opacity: 0.5;
+  cursor: default;
 }
 
 // --- Top bar ---

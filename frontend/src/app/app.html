@@ -14,10 +14,9 @@
       <mat-nav-list class="nav">
         @for (item of nav; track item.label) {
           @if (item.soon) {
-            <a mat-list-item disabled matTooltip="Coming soon" matTooltipPosition="right">
+            <a mat-list-item class="nav-soon" matTooltip="Coming soon" matTooltipPosition="right">
               <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
               <span matListItemTitle>{{ item.label }}</span>
-              <span matListItemMeta class="soon-tag">soon</span>
             </a>
           } @else {
             <a
