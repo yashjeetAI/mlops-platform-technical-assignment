@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -8,6 +8,7 @@ import {
   CreateVersion,
   LifecycleStage,
   ModelDetail,
+  ModelPage,
   ModelSummary,
   ModelVersion,
 } from './registry.models';
@@ -17,8 +18,14 @@ export class RegistryService {
   private readonly http = inject(HttpClient);
   private readonly base = `${API_BASE_URL}/models`;
 
-  listModels(): Observable<ModelSummary[]> {
-    return this.http.get<ModelSummary[]>(this.base);
+  listModels(opts: { limit: number; offset: number; q?: string }): Observable<ModelPage> {
+    let params = new HttpParams()
+      .set('limit', opts.limit)
+      .set('offset', opts.offset);
+    if (opts.q) {
+      params = params.set('q', opts.q);
+    }
+    return this.http.get<ModelPage>(this.base, { params });
   }
 
   getModel(id: string): Observable<ModelDetail> {

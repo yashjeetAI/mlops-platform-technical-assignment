@@ -63,3 +63,10 @@ class ModelResponse(CamelModel):
 
 class ModelDetailResponse(ModelResponse):
     versions: list[ModelVersionResponse] = Field(default_factory=list)
+
+
+class ModelPage(CamelModel):
+    items: list[ModelResponse]
+    total: int
+    limit: int
+    offset: int

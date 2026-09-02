@@ -54,7 +54,41 @@ def test_list_models_visible_to_viewer(client):
     _create_model(client, auth_header(client, "engineer"))
     resp = client.get("/models", headers=auth_header(client, "viewer"))
     assert resp.status_code == 200
-    assert len(resp.json()) == 1
+    body = resp.json()
+    assert body["total"] == 1
+    assert len(body["items"]) == 1
+
+
+def test_models_pagination(client):
+    eng = auth_header(client, "engineer")
+    for i in range(3):
+        client.post("/models", json={**MODEL, "name": f"Model {i}"}, headers=eng)
+
+    page1 = client.get("/models?limit=2&offset=0", headers=eng).json()
+    assert page1["total"] == 3
+    assert len(page1["items"]) == 2
+
+    page2 = client.get("/models?limit=2&offset=2", headers=eng).json()
+    assert len(page2["items"]) == 1
+    # newest first, no overlap between pages
+    ids = {m["id"] for m in page1["items"]} | {m["id"] for m in page2["items"]}
+    assert len(ids) == 3
+
+
+def test_models_server_side_search(client):
+    eng = auth_header(client, "engineer")
+    client.post("/models", json={**MODEL, "name": "Compressor Anomaly"}, headers=eng)
+    client.post("/models", json={**MODEL, "name": "Pump Failure"}, headers=eng)
+
+    resp = client.get("/models?q=compressor", headers=eng).json()
+    assert resp["total"] == 1
+    assert resp["items"][0]["name"] == "Compressor Anomaly"
+
+
+def test_invalid_pagination_rejected(client):
+    eng = auth_header(client, "engineer")
+    assert client.get("/models?limit=0", headers=eng).status_code == 422
+    assert client.get("/models?limit=500", headers=eng).status_code == 422
 
 
 # --- lifecycle: full promotion to Production ---

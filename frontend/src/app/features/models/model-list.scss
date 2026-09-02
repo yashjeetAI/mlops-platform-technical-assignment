@@ -94,6 +94,12 @@
   color: var(--abb-gray-500);
 }
 
+.pager {
+  margin-top: 0.75rem;
+  background: transparent;
+  border-radius: 8px;
+}
+
 // --- Mobile cards ---
 .grid {
   display: grid;

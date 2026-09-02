@@ -41,6 +41,13 @@ export interface ModelDetail extends ModelSummary {
   versions: ModelVersion[];
 }
 
+export interface ModelPage {
+  items: ModelSummary[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 export interface CreateModel {
   name: string;
   owner: string;

@@ -1,7 +1,7 @@
 """Model registry routes."""
 import uuid
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, require_roles
@@ -11,6 +11,7 @@ from app.models.user import User
 from app.schemas.model import (
     ModelCreate,
     ModelDetailResponse,
+    ModelPage,
     ModelResponse,
     ModelVersionCreate,
     ModelVersionResponse,
@@ -30,12 +31,16 @@ def create_model(
     return model_service.create_model(db, user.id, payload)
 
 
-@router.get("", response_model=list[ModelResponse])
+@router.get("", response_model=ModelPage)
 def list_models(
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    q: str | None = Query(None, description="Search name/key/owner/framework"),
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
 ):
-    return model_service.list_models(db)
+    items, total = model_service.list_models(db, limit=limit, offset=offset, q=q)
+    return ModelPage(items=items, total=total, limit=limit, offset=offset)
 
 
 @router.get("/{model_id}", response_model=ModelDetailResponse)

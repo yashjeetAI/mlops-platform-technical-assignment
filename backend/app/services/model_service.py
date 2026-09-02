@@ -5,7 +5,7 @@ take an explicit Session (see ADR-0001) and raise domain errors (see exceptions.
 """
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.core.enums import LifecycleStage
@@ -49,9 +49,33 @@ def create_model(db: Session, actor_id: uuid.UUID, data: ModelCreate) -> Model:
     return model
 
 
-def list_models(db: Session) -> list[Model]:
-    # Newest first (UUIDv7 id is time-ordered).
-    return list(db.execute(select(Model).order_by(Model.id.desc())).scalars())
+def list_models(
+    db: Session, *, limit: int = 20, offset: int = 0, q: str | None = None
+) -> tuple[list[Model], int]:
+    """Return (page of models, total matching count), newest first.
+
+    `q` filters (case-insensitive) across name/key/owner/framework.
+    """
+    stmt = select(Model)
+    count_stmt = select(func.count()).select_from(Model)
+    if q:
+        pattern = f"%{q}%"
+        cond = or_(
+            Model.name.ilike(pattern),
+            Model.key.ilike(pattern),
+            Model.owner.ilike(pattern),
+            Model.framework.ilike(pattern),
+        )
+        stmt = stmt.where(cond)
+        count_stmt = count_stmt.where(cond)
+
+    total = db.execute(count_stmt).scalar_one()
+    items = list(
+        db.execute(
+            stmt.order_by(Model.id.desc()).offset(offset).limit(limit)  # newest first
+        ).scalars()
+    )
+    return items, total
 
 
 def get_model(db: Session, model_id: uuid.UUID) -> Model:

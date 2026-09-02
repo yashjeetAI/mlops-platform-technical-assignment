@@ -58,6 +58,12 @@ Cross-cutting conventions baked into shared code — reuse these, don't reinvent
   `require_roles(*roles)` guard factory. Roles are ordered `VIEWER < ENGINEER < APPROVER <
   ADMIN` (`core/enums.py`); **ADMIN always passes** `require_roles`. Guard governance-critical
   endpoints and return 403 on violation.
+- **List ordering & pagination**: list endpoints return results **newest-first**, ordered by the
+  time-ordered UUIDv7 `id` descending (NOT `created_at`, which is only second-resolution on
+  SQLite). Collection endpoints are **paginated** with `limit`/`offset` query params (validated
+  `1 ≤ limit ≤ 100`) and return an envelope `{ items, total, limit, offset }`; **search is
+  server-side** (`?q=`, case-insensitive across relevant columns), never client-only. The
+  frontend uses `mat-paginator` + a debounced search that resets to page 0.
 
 **Startup** (`main.py` lifespan): runs `alembic upgrade head`, then idempotently seeds demo
 users. `Base.metadata.create_all` is used ONLY by tests, never at runtime.
