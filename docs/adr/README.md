@@ -14,3 +14,4 @@ Alternatives Considered, Consequences, Follow-up Actions.
 | [0003](0003-identifier-strategy.md) | Identifier strategy (UUID primary keys) | Accepted |
 | [0004](0004-api-naming-convention.md) | API naming convention (camelCase JSON boundary) | Accepted |
 | [0005](0005-lifecycle-state-machine.md) | Model-version lifecycle state machine | Accepted |
+| [0006](0006-observability-logging.md) | Observability — structured logging & correlation IDs | Accepted |

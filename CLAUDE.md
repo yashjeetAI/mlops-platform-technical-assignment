@@ -62,6 +62,13 @@ Cross-cutting conventions baked into shared code — reuse these, don't reinvent
 **Startup** (`main.py` lifespan): runs `alembic upgrade head`, then idempotently seeds demo
 users. `Base.metadata.create_all` is used ONLY by tests, never at runtime.
 
+**Logging/observability** (`core/logging.py`, `api/middleware.py`): structured logging via
+**structlog** — JSON in Docker, console locally. `CorrelationIdMiddleware` binds a per-request
+`correlation_id` (from `X-Request-ID` or generated) into structlog contextvars, so every log
+line during a request carries it; it's echoed in the response header. Use
+`get_logger(name)` and log domain events as structured key/values (e.g.
+`logger.info("version_approved", version_id=...)`), never `print`.
+
 ### Database strategy (important, non-obvious)
 - **App + all migrations run on PostgreSQL** (the real target).
 - **Tests run on in-memory SQLite** for speed — `tests/conftest.py` overrides `get_db` and

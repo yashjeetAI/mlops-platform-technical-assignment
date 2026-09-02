@@ -10,10 +10,13 @@ from sqlalchemy.orm import Session
 
 from app.core.enums import LifecycleStage
 from app.core.exceptions import ConflictError, NotFoundError
+from app.core.logging import get_logger
 from app.models.mixins import utcnow
 from app.models.model import Model, ModelVersion
 from app.schemas.model import ModelCreate, ModelVersionCreate
 from app.services import lifecycle
+
+logger = get_logger("registry")
 
 
 # --- models ---
@@ -33,6 +36,7 @@ def create_model(db: Session, actor_id: uuid.UUID, data: ModelCreate) -> Model:
     db.add(model)
     db.commit()
     db.refresh(model)
+    logger.info("model_created", model_id=str(model.id), key=model.key, actor=str(actor_id))
     return model
 
 
@@ -73,6 +77,13 @@ def create_version(
     db.add(version)
     db.commit()
     db.refresh(version)
+    logger.info(
+        "version_created",
+        model_id=str(model_id),
+        version_id=str(version.id),
+        version=version.version,
+        actor=str(actor_id),
+    )
     return version
 
 
@@ -106,6 +117,7 @@ def approve_version(
     version.stage = LifecycleStage.APPROVED
     db.commit()
     db.refresh(version)
+    logger.info("version_approved", version_id=str(version_id), actor=str(actor_id))
     return version
 
 
@@ -114,8 +126,15 @@ def transition_version(
 ) -> ModelVersion:
     """Move a version to `target`, enforcing legality and the approval gate."""
     version = get_version(db, version_id)
-    lifecycle.validate_transition(version.stage, target, approved=version.approved)
+    from_stage = version.stage
+    lifecycle.validate_transition(from_stage, target, approved=version.approved)
     version.stage = target
     db.commit()
     db.refresh(version)
+    logger.info(
+        "version_promoted",
+        version_id=str(version_id),
+        from_stage=from_stage.value,
+        to_stage=target.value,
+    )
     return version
